@@ -3,7 +3,7 @@
 RPGツクールMV向けのプラグインを公開しています。
 
 ## 利用規約 Terms of use
-私が作成したプラグインについては全てMITライセンス](http://opensource.org/licenses/mit-license.php)です。
+私が作成したプラグインについては全て[MITライセンス](http://opensource.org/licenses/mit-license.php)です。
 商用/非商用問わず報告なしで自由にご利用頂けます。
 
 他の方が作成し、私が修正、再配布しているプラグインについては作成元の規約に準じます。
