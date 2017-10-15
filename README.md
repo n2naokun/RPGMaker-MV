@@ -10,5 +10,5 @@ RPGツクールMV向けのプラグインを公開しています。
 
 ## 作者連絡先 Contact information
 柊菜緒(n2naokun)  
-[Twitter] : <https://twitter.com/n2naokun>  
+[Twitter] : <https://twitter.com/n2naokun/>  
 [GitHub]  : <https://github.com/n2naokun/>  
