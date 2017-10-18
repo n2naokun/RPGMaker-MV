@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.2 2017/10/19 書き忘れていた処理を追加
 // 1.0.1 2017/10/19 説明を一部修正
 // 1.0.0 2017/10/19 初版
 // ----------------------------------------------------------------------------
@@ -83,6 +84,12 @@ Scene_Password.prototype.create = function () {
 Scene_Password.prototype.createEditWindow = function () {
     this._editWindow = new Window_PasswordEdit(this._maxLength);
     this.addWindow(this._editWindow);
+};
+
+Scene_Password.prototype.createInputWindow = function () {
+    this._inputWindow = new Window_PasswordInput(this._editWindow);
+    this._inputWindow.setHandler('ok', this.onInputOk.bind(this));
+    this.addWindow(this._inputWindow);
 };
 
 Scene_Password.prototype.onInputOk = function () {
