@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.3 2017/10/19 バグ修正
 // 1.0.2 2017/10/19 書き忘れていた処理を追加
 // 1.0.1 2017/10/19 説明を一部修正
 // 1.0.0 2017/10/19 初版
@@ -148,7 +149,7 @@ Window_PasswordEdit.prototype.left = function () {
 function Window_PasswordInput() {
     this.initialize.apply(this, arguments);
 }
-Window_PasswordInput = Object.create(Window_NameInput);
+Window_PasswordInput.prototype = Object.create(Window_NameInput.prototype);
 Window_PasswordInput.prototype.constructor = Window_PasswordInput;
 
 Window_PasswordInput.prototype.onNameOk = function () {
