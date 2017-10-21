@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.1 2017/10/21 うっかり並び替えボタンが表示されていたのを修正
 // 1.0.0 2017/10/21 初版
 // ----------------------------------------------------------------------------
 // [Twitter]: https://twitter.com/n2naokun/
@@ -32,6 +33,14 @@
         this.createCommandWindow();
         this._commandWindow.x = (Graphics.boxWidth / 2) - (this._commandWindow.width / 2);
         this._commandWindow.y = (Graphics.boxHeight / 2) - (this._commandWindow.height / 2);
+    };
+
+    Window_MenuCommand.prototype.makeCommandList = function () {
+        this.addMainCommands();
+        this.addOriginalCommands();
+        this.addOptionsCommand();
+        this.addSaveCommand();
+        this.addGameEndCommand();
     };
 
     Scene_Menu.prototype.createCommandWindow = function () {
@@ -80,6 +89,6 @@ Scene_Menu.prototype.commandWindowSetHandler = function () {
     // このように処理を追加すると競合なく追加可能
 }
 
-Window_MenuCommand.prototype.addOriginalCommands = function() {
+Window_MenuCommand.prototype.addOriginalCommands = function () {
     // ここをオーバーライドすることでメニューにコマンドを追加できます。
 };
