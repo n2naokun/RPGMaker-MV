@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.1.1 2017/10/25 競合が発生する可能性のあるバグを修正
 // 1.1.0 2017/10/25 ステータス画面への表示に対応＋各画面の画像のON-OFFを可能にしました
 // 1.0.1 2017/10/25 YEP_ClassChangeCoreを読み込んでいない時のバグを修正
 // 1.0.0 2017/10/20 初版
@@ -69,7 +70,7 @@ Imported.MenuJobBackground = true;
     flag.ClassCange = toBoolean(params["ClassCangeBackground"]);
 
     // バックグラウンド画像用の処理を追加
-    Scene_MenuBase_creageBackground = Scene_MenuBase.prototype.createBackground;
+    var Scene_MenuBase_creageBackground = Scene_MenuBase.prototype.createBackground;
     Scene_MenuBase.prototype.createBackground = function () {
         Scene_MenuBase_creageBackground.call(this);
 
@@ -90,7 +91,7 @@ Imported.MenuJobBackground = true;
     }
 
     // メニューが開かれるときに背景を変更する処理を追加
-    Scene_MenuBase_updateActor = Scene_MenuBase.prototype.updateActor;
+    var Scene_MenuBase_updateActor = Scene_MenuBase.prototype.updateActor;
     Scene_MenuBase.prototype.updateActor = function () {
         Scene_MenuBase_updateActor.call(this);
         if (this._classPicture) {
@@ -100,7 +101,7 @@ Imported.MenuJobBackground = true;
     };
 
     // メニュー画面に入った時に背景を描画するための処理を追加
-    Scene_Menu_initialize = Scene_Menu.prototype.initialize;
+    var Scene_Menu_initialize = Scene_Menu.prototype.initialize;
     Scene_Menu.prototype.initialize = function () {
         Scene_Menu_initialize.call(this);
         if (flag.Menu) {
@@ -109,7 +110,7 @@ Imported.MenuJobBackground = true;
     };
 
     // ステータス画面に入った時に背景を描画するための処理を追加
-    Scene_Status_Initialize = Scene_Status.prototype.initialize;
+    var Scene_Status_Initialize = Scene_Status.prototype.initialize;
     Scene_Status.prototype.initialize = function () {
         Scene_Status_Initialize.call(this);
         if (flag.Status) {
@@ -120,7 +121,7 @@ Imported.MenuJobBackground = true;
     // YEP_ClassChangeCoreが読み込まれている場合の処理
     if (Imported.YEP_ClassChangeCore) {
         // ジョブチェンジ画面に入った時に背景を描画するための処理を追加
-        Scene_Class_initialize = Scene_Class.prototype.initialize;
+        var Scene_Class_initialize = Scene_Class.prototype.initialize;
         Scene_Class.prototype.initialize = function () {
             Scene_Class_initialize.call(this);
             if (flag.ClassCange) {
@@ -129,7 +130,7 @@ Imported.MenuJobBackground = true;
         };
 
         // ジョブが変更された場合背景を変更する処理を追加
-        Scene_Class_onItemOk = Scene_Class.prototype.onItemOk;
+        var Scene_Class_onItemOk = Scene_Class.prototype.onItemOk;
         Scene_Class.prototype.onItemOk = function () {
             Scene_Class_onItemOk.call(this);
             this.updateJobpic();
