@@ -66,7 +66,7 @@ Imported.MenuJobBackground = true;
     flag = {};
     flag.Menu = toBoolean(params["MenuBackground"]);
     flag.Status = toBoolean(params["StatesBackground"]);
-    flag.ClassCange = toBoolean(param["ClassCangeBackground"]);
+    flag.ClassCange = toBoolean(params["ClassCangeBackground"]);
 
     // バックグラウンド画像用の処理を追加
     Scene_MenuBase_creageBackground = Scene_MenuBase.prototype.createBackground;
