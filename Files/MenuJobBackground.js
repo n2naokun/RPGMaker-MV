@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.1 2017/10/25 YEP_ClassChangeCoreを読み込んでいない時のバグを修正
 // 1.0.0 2017/10/20 初版
 // ----------------------------------------------------------------------------
 // [Twitter]: https://twitter.com/n2naokun/
@@ -35,6 +36,9 @@
  *  についても制限はありません。
  *  このプラグインはもうあなたのものです。
  */
+
+var Imported = Imported || {};
+Imported.MenuJobBackground = true;
 
 (function (_global) {
     // バックグラウンド画像用の処理を追加
