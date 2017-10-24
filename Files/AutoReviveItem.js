@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.1 2017/10/25 一部プラグインパラメーターが上手く動作しないのを修正
 // 1.0.0 2017/10/18 初版
 // ----------------------------------------------------------------------------
 // [Twitter]: https://twitter.com/n2naokun/
@@ -101,18 +102,22 @@
  */
 
 (function (_global) {
+    toBoolean = function (str) {
+        if (str == "true") return true;
+        return false;
+    }
 
     var params = PluginManager.parameters('AutoReviveItem');
     var setting = function () { };
     setting.HPtype = Number(params['RestoreHPtype']);
     setting.HPratio = Number(params['RestoreHPRatio']);
     setting.HPnum = Number(params['RestoreHPnum']);
-    setting.RestoreMP = Boolean(params['RestoreMP']);
+    setting.RestoreMP = toBoolean(params['RestoreMP']);
     setting.MPtype = Number(params['RestoreMPtype']);
     setting.MPratio = Number(params['RestoreMPRatio']);
     setting.MPnum = Number(params['RestoreMPnum']);
-    setting.MarkStateNotClear = Boolean(params['MarkStateNotClear']);
-    setting.ExeCommonEvent = Boolean(params['ExecuteCommonEvent']);
+    setting.MarkStateNotClear = toBoolean(params['MarkStateNotClear']);
+    setting.ExeCommonEvent = toBoolean(params['ExecuteCommonEvent']);
     setting.CallEvent = Number(params['CallCommonEvent']);
 
     BattleManager_checkBattleEnd = BattleManager.checkBattleEnd;
