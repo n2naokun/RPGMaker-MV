@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.2.1 2017/10/25 バグ修正
 // 1.2.0 2017/10/25 ステータス画面での画像のズームと移動を実装しました
 // 1.1.1 2017/10/25 競合が発生する可能性のあるバグを修正
 // 1.1.0 2017/10/25 ステータス画面への表示に対応＋各画面の画像のON-OFFを可能にしました
@@ -27,6 +28,10 @@
  * 
  * 画像格納フォルダ
  * /img/jobpicture/
+ * 
+ * ステータス画面の背景としても表示することが可能になりました。
+ * また、設定すればステータス画面で画像を手前に表示することも可能です。
+ * その際オプションで画像をズームさせることもできます。
  * 
  * ※シングルアクター環境を想定して作っているためその他の環境では想定通りの
  * 動作をしない可能性が極めて高いのでご注意ください。
@@ -76,16 +81,18 @@
  *  このプラグインはもうあなたのものです。
  */
 
+'use strict'
+
 var Imported = Imported || {};
 Imported.MenuJobBackground = true;
 
 (function (_global) {
-    toBoolean = function (str) {
+    function toBoolean(str) {
         if (str == "true") return true;
         return false;
     }
 
-    params = PluginManager.parameters('MenuJobBackground');
+    var params = PluginManager.parameters('MenuJobBackground');
     var flag = {};
     flag.Menu = toBoolean(params["MenuBackground"]);
     flag.Status = toBoolean(params["StatesBackground"]);
@@ -108,8 +115,8 @@ Imported.MenuJobBackground = true;
 
     // ジョブが変わった時の呼ばれる関数
     Scene_MenuBase.prototype.updateJobpic = function () {
-        actor = this.actor();
-        dataClass = $dataClasses[actor._classId];
+        var actor = this.actor();
+        var dataClass = $dataClasses[actor._classId];
         if (dataClass.meta.JobPic) {
             this._jobBackgroundSprite.bitmap = ImageManager.loadJobPic(String(dataClass.meta.JobPic));
         } else {
@@ -213,7 +220,7 @@ Imported.MenuJobBackground = true;
     }
 
     // ズーム時カーソルキーで画像を移動させる処理
-    Scene_Status_update = Scene_Status.prototype.update;
+    var Scene_Status_update = Scene_Status.prototype.update;
     Scene_Status.prototype.update = function () {
         Scene_Status_update.call(this);
         if (flag.Status && flag.ImageForeground && this._ImageWindow.active &&
