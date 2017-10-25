@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.2.0 2017/10/25 ステータス画面での画像のズームと移動を実装しました
 // 1.1.1 2017/10/25 競合が発生する可能性のあるバグを修正
 // 1.1.0 2017/10/25 ステータス画面への表示に対応＋各画面の画像のON-OFFを可能にしました
 // 1.0.1 2017/10/25 YEP_ClassChangeCoreを読み込んでいない時のバグを修正
@@ -43,6 +44,27 @@
  * @desc ステータス画面の背景に画像を表示するかの設定（既定値：無効）
  * @default false
  * 
+ * @param StatesJobImageForeground
+ * @type boolean
+ * @desc ステータス画面で決定キーを押した場合に画像を手前に表示するか（既定値：無効）
+ * @default false
+ * 
+ * @param UseImageZoom
+ * @type boolean
+ * @desc 画像のズーム機能を使うか（既定値：無効）
+ * @default false
+ * 
+ * @param ImageZoomScale
+ * @type number
+ * @desc 画像の倍率（既定値：1.3）
+ * @decimals 0.1
+ * @default 1.3
+ * 
+ * @param ImageMovePixel
+ * @type number
+ * @desc ズーム時にカーソルキーで移動する量（既定値：10）
+ * @default 10
+ * 
  * @param ClassCangeBackground
  * @type boolean
  * @desc クラスチェンジ画面の背景に画像を表示するかの設定（既定値：無効）
@@ -64,10 +86,15 @@ Imported.MenuJobBackground = true;
     }
 
     params = PluginManager.parameters('MenuJobBackground');
-    flag = {};
+    var flag = {};
     flag.Menu = toBoolean(params["MenuBackground"]);
     flag.Status = toBoolean(params["StatesBackground"]);
     flag.ClassCange = toBoolean(params["ClassCangeBackground"]);
+    flag.ImageForeground = toBoolean(params["StatesJobImageForeground"]);
+    flag.ImageZoom = toBoolean(params["UseImageZoom"]);
+
+    var zoomScale = Number(params["ImageZoomScale"]);
+    var movePixel = Number(params["ImageMovePixel"]);
 
     // バックグラウンド画像用の処理を追加
     var Scene_MenuBase_creageBackground = Scene_MenuBase.prototype.createBackground;
@@ -117,6 +144,95 @@ Imported.MenuJobBackground = true;
             this._classPicture = true;
         }
     };
+
+    // ステータス画面で手前に画像を描画するための処理を追加
+    Scene_Status.prototype.create = function () {
+        Scene_MenuBase.prototype.create.call(this);
+        this._statusWindow = new Window_Status();
+        this._statusWindow.setHandler('cancel', this.popScene.bind(this));
+        if (flag.Status && flag.ImageForeground) {
+            this._statusWindow.setHandler("ok", this.showForegroundImage.bind(this));
+            this._ImageWindow = new Window_Selectable(0, 0, Graphics.boxWidth, Graphics.boxHeight);
+            this._ImageWindow.setHandler('cancel', this.hideForegroundImage.bind(this));
+            if (flag.ImageZoom) this._ImageWindow.setHandler("ok", this.ImageZoom.bind(this));
+            this._ImageWindow.opacity = 0;
+            this._ImageWindow.hide();
+            this._jobImage = new Sprite();
+            this._zoom = false;
+        }
+        this._statusWindow.reserveFaceImages();
+        this.addWindow(this._statusWindow);
+        if (flag.Status && flag.ImageForeground) {
+            this.addWindow(this._ImageWindow);
+            this.addChild(this._jobImage);
+        }
+
+    };
+
+    // 描画するときに実行される処理
+    Scene_Status.prototype.showForegroundImage = function () {
+        if (flag.Status && flag.ImageForeground) {
+            this._jobImage.bitmap = this._jobBackgroundSprite.bitmap;
+            this._jobBackgroundSprite.visible = false;
+            this._statusWindow.hide();
+            this._ImageWindow.activate();
+        }
+    }
+    // 非表示にするときに実行される処理
+    Scene_Status.prototype.hideForegroundImage = function () {
+        if (flag.Status && flag.ImageForeground) {
+            this._jobImage.bitmap = null;
+            this._jobBackgroundSprite.visible = true;
+            this._statusWindow.show();
+            this._statusWindow.activate();
+            var image = this._jobImage;
+            image.scale.x = 1;
+            image.scale.y = 1;
+            image.x = 0;
+            image.y = 0;
+            this._zoom = false;
+        }
+    }
+    // ズームされるときに実行される処理
+    Scene_Status.prototype.ImageZoom = function () {
+        if (flag.Status && flag.ImageForeground) {
+            this._ImageWindow.activate();
+            var image = this._jobImage;
+            if (!this._zoom && !isNaN(zoomScale)) {
+                image.scale.x = zoomScale;
+                image.scale.y = zoomScale;
+                this._zoom = true;
+            } else {
+                image.scale.x = 1;
+                image.scale.y = 1;
+                image.x = 0;
+                image.y = 0;
+                this._zoom = false;
+            }
+        }
+    }
+
+    // ズーム時カーソルキーで画像を移動させる処理
+    Scene_Status_update = Scene_Status.prototype.update;
+    Scene_Status.prototype.update = function () {
+        Scene_Status_update.call(this);
+        if (flag.Status && flag.ImageForeground && this._ImageWindow.active &&
+            flag.ImageZoom && this._zoom && !isNaN(movePixel)) {
+            var image = this._jobImage;
+            if (Input.isRepeated('up')) {
+                image.y -= movePixel;
+            }
+            if (Input.isRepeated('down')) {
+                image.y += movePixel;
+            }
+            if (Input.isRepeated('left')) {
+                image.x -= movePixel;
+            }
+            if (Input.isRepeated('right')) {
+                image.x += movePixel;
+            }
+        }
+    }
 
     // YEP_ClassChangeCoreが読み込まれている場合の処理
     if (Imported.YEP_ClassChangeCore) {
