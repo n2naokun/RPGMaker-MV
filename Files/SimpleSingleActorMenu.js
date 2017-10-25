@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.1.1 ステータス画面で余計なキーが反応しないように変更
 // 1.1.0 このプラグインの読み込み状況を他のプラグインからわかるように改修
 // 1.0.1 2017/10/21 うっかり並び替えボタンが表示されていたのを修正
 // 1.0.0 2017/10/21 初版
@@ -83,6 +84,14 @@ Imported.SimpleSingleActorMenu = true;
         } else {
             return $gameParty.members();
         }
+    };
+
+    Scene_Status.prototype.create = function () {
+        Scene_MenuBase.prototype.create.call(this);
+        this._statusWindow = new Window_Status();
+        this._statusWindow.setHandler('cancel', this.popScene.bind(this));
+        this._statusWindow.reserveFaceImages();
+        this.addWindow(this._statusWindow);
     };
 
 })(this);
