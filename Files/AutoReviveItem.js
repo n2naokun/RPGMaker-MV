@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.2 2017/10/28 競合が発生する可能性のあるバグを修正
 // 1.0.1 2017/10/25 一部プラグインパラメーターが上手く動作しないのを修正
 // 1.0.0 2017/10/18 初版
 // ----------------------------------------------------------------------------
@@ -101,14 +102,16 @@
  *   ターン数を引き継ぐ処理をしていないため未保証。
  */
 
+'use strict';//厳格なエラーチェック
+
 (function (_global) {
-    toBoolean = function (str) {
+    function toBoolean(str) {
         if (str == "true") return true;
         return false;
     }
 
     var params = PluginManager.parameters('AutoReviveItem');
-    var setting = function () { };
+    var setting = {};
     setting.HPtype = Number(params['RestoreHPtype']);
     setting.HPratio = Number(params['RestoreHPRatio']);
     setting.HPnum = Number(params['RestoreHPnum']);
@@ -120,12 +123,12 @@
     setting.ExeCommonEvent = toBoolean(params['ExecuteCommonEvent']);
     setting.CallEvent = Number(params['CallCommonEvent']);
 
-    BattleManager_checkBattleEnd = BattleManager.checkBattleEnd;
+    var BattleManager_checkBattleEnd = BattleManager.checkBattleEnd;
     BattleManager.checkBattleEnd = function () {
         //全滅判定チェック
         if ($gameParty.isAllDead()) {//全滅なら実行
             //所持アイテムをチェック
-            dat = Utility.CheckReviveItem();
+            var dat = Utility.CheckReviveItem();
             if (dat.flag) {
                 $gameParty.reviveItemUse(dat.item);
                 return false;
@@ -134,16 +137,16 @@
         BattleManager_checkBattleEnd.call(this);
     }
 
-    Game_BattlerBase_initMembers = Game_BattlerBase.prototype.initMembers;
+    var Game_BattlerBase_initMembers = Game_BattlerBase.prototype.initMembers;
     Game_BattlerBase.prototype.initMembers = function () {
         Game_BattlerBase_initMembers.call(this);
         this._remainStates = [];
     }
 
-    Game_BattlerBase_clearStates = Game_BattlerBase.prototype.clearStates;
+    var Game_BattlerBase_clearStates = Game_BattlerBase.prototype.clearStates;
     Game_BattlerBase.prototype.clearStates = function () {
         if (this._states != null) {
-            dat = Utility.CheckReviveItem();
+            var dat = Utility.CheckReviveItem();
             if (this._states.length != 0 && setting.MarkStateNotClear && dat.flag) {
                 this._remainStates = [];
                 this._states.forEach(function (statesId) {
@@ -210,7 +213,7 @@
 
     //復活アイテムの確認
     Utility.CheckReviveItem = function () {
-        var dat = function () { };
+        var dat = {};
         dat.flag = false;
         $gameParty.items().forEach(function (item) {
             if (item.meta.ReviveItem) {
