@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.1 2017/10/28 競合が発生する可能性のあるバグを修正
 // 1.0.0 2017/10/25 初版
 // ----------------------------------------------------------------------------
 // [Twitter]: https://twitter.com/n2naokun/
@@ -34,6 +35,8 @@
  *  このプラグインはもうあなたのものです。
  */
 
+'use strict';//厳格なエラーチェック
+
 (function (_global) {
     // クラスチェンジされると呼ばれる処理
     var Game_Actor_changeClass = Game_Actor.prototype.changeClass;
@@ -45,11 +48,11 @@
 
     // 歩行イラストを変更する処理
     Game_Actor.prototype.CharaImageChange = function () {
-        dataClass = $dataClasses[this._classId];
+        var dataClass = $dataClasses[this._classId];
 
         if (dataClass.meta.CharaImage && dataClass.meta.ImageNum && !isNaN(Number(dataClass.meta.ImageNum))) {
-            CharaImage = String(dataClass.meta.CharaImage);
-            ImageNum = Number(dataClass.meta.ImageNum);
+            var CharaImage = String(dataClass.meta.CharaImage);
+            var ImageNum = Number(dataClass.meta.ImageNum);
 
             this.setCharacterImage(CharaImage, ImageNum);
             $gamePlayer.refresh()
