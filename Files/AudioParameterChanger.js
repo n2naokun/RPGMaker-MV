@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.1 2017/10/28 競合の可能性のあるバグを修正
 // 1.0.0 2017/10/14 初版
 // ----------------------------------------------------------------------------
 // [Twitter]: https://twitter.com/n2naokun/
@@ -37,6 +38,8 @@
  *  このプラグインはもうあなたのものです。
  */
 
+'use strict';//厳格なエラーチェック
+
 (function (_global) {
 	//プラグインコマンド定義
 	var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
@@ -44,12 +47,12 @@
 		switch (command) {
 			case "BGM":
 				if (AudioManager._currentBgm === null) break;
-				bgm = Utility.ParameterProcessor(AudioManager._currentBgm, args);
+				var bgm = Utility.ParameterProcessor(AudioManager._currentBgm, args);
 				AudioManager.updateBgmParameters(bgm);
 				break;
 			case "BGS":
 				if (AudioManager._currentBgs === null) break;
-				bgs = Utility.ParameterProcessor(AudioManager._currentBgs, args);
+				var bgs = Utility.ParameterProcessor(AudioManager._currentBgs, args);
 				AudioManager.updateBgsParameters(bgs);
 				break;
 		}
@@ -58,7 +61,7 @@
 
 	function Utility() { };
 	Utility.ParameterProcessor = function (InputAudio, args) {
-		audio = InputAudio;
+		var audio = InputAudio;
 		for (i = 0; i < args.length; i++) {
 			//数字の場合は処理を飛ばす
 			if (!isNaN(args[i])) continue;
