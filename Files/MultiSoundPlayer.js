@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.1.1 2017/10/28 競合が発生する可能性のあるバグを修正
 // 1.1.0 2017/10/22 事前読み込みに対応しました
 // 1.0.0 2017/10/22 初版
 // ----------------------------------------------------------------------------
@@ -59,12 +60,14 @@
  *  このプラグインはもうあなたのものです。
  */
 
+'use strict';//厳格なエラーチェック
+
 var ExSoundBuffer = {};
 var ExSound = {};
 var ExSoundType = {};
 
 (function (_global) {
-    mgr = AudioManager;
+    var mgr = AudioManager;
     //プラグインコマンド定義
     var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
     Game_Interpreter.prototype.pluginCommand = function (command, args) {
@@ -97,6 +100,7 @@ var ExSoundType = {};
         // パラメーターが無ければ実行しない
         if (!soundId || !soundType || !soundName) return;
 
+        var type;
         // サウンドタイプを設定
         if (soundType == "BGM") {
             type = "bgm";
@@ -108,7 +112,7 @@ var ExSoundType = {};
         Utility.delSound(soundId);
 
         // サウンド情報を構築
-        sound = {};
+        var sound = {};
         sound.name = String(soundName);
         sound.pan = 0;
         sound.pitch = 100;
