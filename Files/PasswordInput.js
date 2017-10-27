@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.4 2017/10/28 競合が発生する可能性のあるバグを修正
 // 1.0.3 2017/10/19 バグ修正
 // 1.0.2 2017/10/19 書き忘れていた処理を追加
 // 1.0.1 2017/10/19 説明を一部修正
@@ -38,6 +39,8 @@
  *  このプラグインはもうあなたのものです。
  */
 
+'use strict';//厳格なエラーチェック
+
 (function (_global) {
     //プラグインコマンド定義
     var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
@@ -45,7 +48,7 @@
         switch (command) {
             case "PasswordInput":
                 if (args[0] && !isNaN(args[1])) {
-                    maxLength = args[0].length;
+                    var maxLength = args[0].length;
                     if (!isNaN(args[2]) && (maxLength < Number(args[2]))) {
                         maxLength = Number(args[2]);
                     }
