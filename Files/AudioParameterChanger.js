@@ -62,7 +62,7 @@
 	function Utility() { };
 	Utility.ParameterProcessor = function (InputAudio, args) {
 		var audio = InputAudio;
-		for (i = 0; i < args.length; i++) {
+		for (var i = 0; i < args.length; i++) {
 			//数字の場合は処理を飛ばす
 			if (!isNaN(args[i])) continue;
 			switch (args[i]) {
