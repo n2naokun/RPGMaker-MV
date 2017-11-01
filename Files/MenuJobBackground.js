@@ -81,189 +81,189 @@
  *  このプラグインはもうあなたのものです。
  */
 
-'use strict'
+"use strict";
 
 var Imported = Imported || {};
 Imported.MenuJobBackground = true;
 
 (function (_global) {
-    function toBoolean(str) {
-        if (str == "true") return true;
-        return false;
-    }
+   function toBoolean(str) {
+      if (str == "true") return true;
+      return false;
+   }
 
-    var params = PluginManager.parameters('MenuJobBackground');
-    var flag = {};
-    flag.Menu = toBoolean(params["MenuBackground"]);
-    flag.Status = toBoolean(params["StatesBackground"]);
-    flag.ClassCange = toBoolean(params["ClassCangeBackground"]);
-    flag.ImageForeground = toBoolean(params["StatesJobImageForeground"]);
-    flag.ImageZoom = toBoolean(params["UseImageZoom"]);
+   var params = PluginManager.parameters("MenuJobBackground");
+   var flag = {};
+   flag.Menu = toBoolean(params["MenuBackground"]);
+   flag.Status = toBoolean(params["StatesBackground"]);
+   flag.ClassCange = toBoolean(params["ClassCangeBackground"]);
+   flag.ImageForeground = toBoolean(params["StatesJobImageForeground"]);
+   flag.ImageZoom = toBoolean(params["UseImageZoom"]);
 
-    var zoomScale = Number(params["ImageZoomScale"]);
-    var movePixel = Number(params["ImageMovePixel"]);
+   var zoomScale = Number(params["ImageZoomScale"]);
+   var movePixel = Number(params["ImageMovePixel"]);
 
-    // バックグラウンド画像用の処理を追加
-    var Scene_MenuBase_creageBackground = Scene_MenuBase.prototype.createBackground;
-    Scene_MenuBase.prototype.createBackground = function () {
-        Scene_MenuBase_creageBackground.call(this);
+   // バックグラウンド画像用の処理を追加
+   var Scene_MenuBase_creageBackground = Scene_MenuBase.prototype.createBackground;
+   Scene_MenuBase.prototype.createBackground = function () {
+      Scene_MenuBase_creageBackground.call(this);
 
-        // バックグラウンド用レイヤーを準備
-        this._jobBackgroundSprite = new Sprite();
-        this.addChild(this._jobBackgroundSprite);
-    }
+      // バックグラウンド用レイヤーを準備
+      this._jobBackgroundSprite = new Sprite();
+      this.addChild(this._jobBackgroundSprite);
+   };
 
-    // ジョブが変わった時の呼ばれる関数
-    Scene_MenuBase.prototype.updateJobpic = function () {
-        var actor = this.actor();
-        var dataClass = $dataClasses[actor._classId];
-        if (dataClass.meta.JobPic) {
-            this._jobBackgroundSprite.bitmap = ImageManager.loadJobPic(String(dataClass.meta.JobPic));
-        } else {
-            this._jobBackgroundSprite.bitmap = null;
-        }
-    }
+   // ジョブが変わった時の呼ばれる関数
+   Scene_MenuBase.prototype.updateJobpic = function () {
+      var actor = this.actor();
+      var dataClass = $dataClasses[actor._classId];
+      if (dataClass.meta.JobPic) {
+         this._jobBackgroundSprite.bitmap = ImageManager.loadJobPic(String(dataClass.meta.JobPic));
+      } else {
+         this._jobBackgroundSprite.bitmap = null;
+      }
+   };
 
-    // メニューが開かれるときに背景を変更する処理を追加
-    var Scene_MenuBase_updateActor = Scene_MenuBase.prototype.updateActor;
-    Scene_MenuBase.prototype.updateActor = function () {
-        Scene_MenuBase_updateActor.call(this);
-        if (this._classPicture) {
-            this.updateJobpic();
-            this._classPicture = false;
-        }
-    };
+   // メニューが開かれるときに背景を変更する処理を追加
+   var Scene_MenuBase_updateActor = Scene_MenuBase.prototype.updateActor;
+   Scene_MenuBase.prototype.updateActor = function () {
+      Scene_MenuBase_updateActor.call(this);
+      if (this._classPicture) {
+         this.updateJobpic();
+         this._classPicture = false;
+      }
+   };
 
-    // メニュー画面に入った時に背景を描画するための処理を追加
-    var Scene_Menu_initialize = Scene_Menu.prototype.initialize;
-    Scene_Menu.prototype.initialize = function () {
-        Scene_Menu_initialize.call(this);
-        if (flag.Menu) {
-            this._classPicture = true;
-        }
-    };
+   // メニュー画面に入った時に背景を描画するための処理を追加
+   var Scene_Menu_initialize = Scene_Menu.prototype.initialize;
+   Scene_Menu.prototype.initialize = function () {
+      Scene_Menu_initialize.call(this);
+      if (flag.Menu) {
+         this._classPicture = true;
+      }
+   };
 
-    // ステータス画面に入った時に背景を描画するための処理を追加
-    var Scene_Status_Initialize = Scene_Status.prototype.initialize;
-    Scene_Status.prototype.initialize = function () {
-        Scene_Status_Initialize.call(this);
-        if (flag.Status) {
-            this._classPicture = true;
-        }
-    };
+   // ステータス画面に入った時に背景を描画するための処理を追加
+   var Scene_Status_Initialize = Scene_Status.prototype.initialize;
+   Scene_Status.prototype.initialize = function () {
+      Scene_Status_Initialize.call(this);
+      if (flag.Status) {
+         this._classPicture = true;
+      }
+   };
 
-    // ステータス画面で手前に画像を描画するための処理を追加
-    Scene_Status.prototype.create = function () {
-        Scene_MenuBase.prototype.create.call(this);
-        this._statusWindow = new Window_Status();
-        this._statusWindow.setHandler('cancel', this.popScene.bind(this));
-        if (flag.Status && flag.ImageForeground) {
-            this._statusWindow.setHandler("ok", this.showForegroundImage.bind(this));
-            this._ImageWindow = new Window_Selectable(0, 0, Graphics.boxWidth, Graphics.boxHeight);
-            this._ImageWindow.setHandler('cancel', this.hideForegroundImage.bind(this));
-            if (flag.ImageZoom) this._ImageWindow.setHandler("ok", this.ImageZoom.bind(this));
-            this._ImageWindow.opacity = 0;
-            this._ImageWindow.hide();
-            this._jobImage = new Sprite();
-            this._zoom = false;
-        }
-        this._statusWindow.reserveFaceImages();
-        this.addWindow(this._statusWindow);
-        if (flag.Status && flag.ImageForeground) {
-            this.addWindow(this._ImageWindow);
-            this.addChild(this._jobImage);
-        }
+   // ステータス画面で手前に画像を描画するための処理を追加
+   Scene_Status.prototype.create = function () {
+      Scene_MenuBase.prototype.create.call(this);
+      this._statusWindow = new Window_Status();
+      this._statusWindow.setHandler("cancel", this.popScene.bind(this));
+      if (flag.Status && flag.ImageForeground) {
+         this._statusWindow.setHandler("ok", this.showForegroundImage.bind(this));
+         this._ImageWindow = new Window_Selectable(0, 0, Graphics.boxWidth, Graphics.boxHeight);
+         this._ImageWindow.setHandler("cancel", this.hideForegroundImage.bind(this));
+         if (flag.ImageZoom) this._ImageWindow.setHandler("ok", this.ImageZoom.bind(this));
+         this._ImageWindow.opacity = 0;
+         this._ImageWindow.hide();
+         this._jobImage = new Sprite();
+         this._zoom = false;
+      }
+      this._statusWindow.reserveFaceImages();
+      this.addWindow(this._statusWindow);
+      if (flag.Status && flag.ImageForeground) {
+         this.addWindow(this._ImageWindow);
+         this.addChild(this._jobImage);
+      }
 
-    };
+   };
 
-    // 描画するときに実行される処理
-    Scene_Status.prototype.showForegroundImage = function () {
-        if (flag.Status && flag.ImageForeground) {
-            this._jobImage.bitmap = this._jobBackgroundSprite.bitmap;
-            this._jobBackgroundSprite.visible = false;
-            this._statusWindow.hide();
-            this._ImageWindow.activate();
-        }
-    }
-    // 非表示にするときに実行される処理
-    Scene_Status.prototype.hideForegroundImage = function () {
-        if (flag.Status && flag.ImageForeground) {
-            this._jobImage.bitmap = null;
-            this._jobBackgroundSprite.visible = true;
-            this._statusWindow.show();
-            this._statusWindow.activate();
-            var image = this._jobImage;
+   // 描画するときに実行される処理
+   Scene_Status.prototype.showForegroundImage = function () {
+      if (flag.Status && flag.ImageForeground) {
+         this._jobImage.bitmap = this._jobBackgroundSprite.bitmap;
+         this._jobBackgroundSprite.visible = false;
+         this._statusWindow.hide();
+         this._ImageWindow.activate();
+      }
+   };
+   // 非表示にするときに実行される処理
+   Scene_Status.prototype.hideForegroundImage = function () {
+      if (flag.Status && flag.ImageForeground) {
+         this._jobImage.bitmap = null;
+         this._jobBackgroundSprite.visible = true;
+         this._statusWindow.show();
+         this._statusWindow.activate();
+         var image = this._jobImage;
+         image.scale.x = 1;
+         image.scale.y = 1;
+         image.x = 0;
+         image.y = 0;
+         this._zoom = false;
+      }
+   };
+   // ズームされるときに実行される処理
+   Scene_Status.prototype.ImageZoom = function () {
+      if (flag.Status && flag.ImageForeground) {
+         this._ImageWindow.activate();
+         var image = this._jobImage;
+         if (!this._zoom && !isNaN(zoomScale)) {
+            image.scale.x = zoomScale;
+            image.scale.y = zoomScale;
+            this._zoom = true;
+         } else {
             image.scale.x = 1;
             image.scale.y = 1;
             image.x = 0;
             image.y = 0;
             this._zoom = false;
-        }
-    }
-    // ズームされるときに実行される処理
-    Scene_Status.prototype.ImageZoom = function () {
-        if (flag.Status && flag.ImageForeground) {
-            this._ImageWindow.activate();
-            var image = this._jobImage;
-            if (!this._zoom && !isNaN(zoomScale)) {
-                image.scale.x = zoomScale;
-                image.scale.y = zoomScale;
-                this._zoom = true;
-            } else {
-                image.scale.x = 1;
-                image.scale.y = 1;
-                image.x = 0;
-                image.y = 0;
-                this._zoom = false;
-            }
-        }
-    }
+         }
+      }
+   };
 
-    // ズーム時カーソルキーで画像を移動させる処理
-    var Scene_Status_update = Scene_Status.prototype.update;
-    Scene_Status.prototype.update = function () {
-        Scene_Status_update.call(this);
-        if (flag.Status && flag.ImageForeground && this._ImageWindow.active &&
-            flag.ImageZoom && this._zoom && !isNaN(movePixel)) {
-            var image = this._jobImage;
-            if (Input.isRepeated('up')) {
-                image.y -= movePixel;
-            }
-            if (Input.isRepeated('down')) {
-                image.y += movePixel;
-            }
-            if (Input.isRepeated('left')) {
-                image.x -= movePixel;
-            }
-            if (Input.isRepeated('right')) {
-                image.x += movePixel;
-            }
-        }
-    }
+   // ズーム時カーソルキーで画像を移動させる処理
+   var Scene_Status_update = Scene_Status.prototype.update;
+   Scene_Status.prototype.update = function () {
+      Scene_Status_update.call(this);
+      if (flag.Status && flag.ImageForeground && this._ImageWindow.active &&
+         flag.ImageZoom && this._zoom && !isNaN(movePixel)) {
+         var image = this._jobImage;
+         if (Input.isRepeated("up")) {
+            image.y -= movePixel;
+         }
+         if (Input.isRepeated("down")) {
+            image.y += movePixel;
+         }
+         if (Input.isRepeated("left")) {
+            image.x -= movePixel;
+         }
+         if (Input.isRepeated("right")) {
+            image.x += movePixel;
+         }
+      }
+   };
 
-    // YEP_ClassChangeCoreが読み込まれている場合の処理
-    if (Imported.YEP_ClassChangeCore) {
-        // ジョブチェンジ画面に入った時に背景を描画するための処理を追加
-        var Scene_Class_initialize = Scene_Class.prototype.initialize;
-        Scene_Class.prototype.initialize = function () {
-            Scene_Class_initialize.call(this);
-            if (flag.ClassCange) {
-                this._classPicture = true;
-            }
-        };
+   // YEP_ClassChangeCoreが読み込まれている場合の処理
+   if (Imported.YEP_ClassChangeCore) {
+      // ジョブチェンジ画面に入った時に背景を描画するための処理を追加
+      var Scene_Class_initialize = Scene_Class.prototype.initialize;
+      Scene_Class.prototype.initialize = function () {
+         Scene_Class_initialize.call(this);
+         if (flag.ClassCange) {
+            this._classPicture = true;
+         }
+      };
 
-        // ジョブが変更された場合背景を変更する処理を追加
-        var Scene_Class_onItemOk = Scene_Class.prototype.onItemOk;
-        Scene_Class.prototype.onItemOk = function () {
-            Scene_Class_onItemOk.call(this);
-            this.updateJobpic();
-            this._classPicture = false;
-        }
-    }
+      // ジョブが変更された場合背景を変更する処理を追加
+      var Scene_Class_onItemOk = Scene_Class.prototype.onItemOk;
+      Scene_Class.prototype.onItemOk = function () {
+         Scene_Class_onItemOk.call(this);
+         this.updateJobpic();
+         this._classPicture = false;
+      };
+   }
 
 })(this);
 
 // ジョブ背景を読み込むための関数を用意
 ImageManager.loadJobPic = function (filename, hue) {
-    return this.loadBitmap('img/jobpicture/', filename, hue, true);
+   return this.loadBitmap("img/jobpicture/", filename, hue, true);
 };

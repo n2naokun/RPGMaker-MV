@@ -57,65 +57,65 @@
  *  このプラグインはもうあなたのものです。
  */
 
-'use strict';//厳格なエラーチェック
+"use strict";//厳格なエラーチェック
 
 var Imported = Imported || {};
 Imported.SaveVariableCore = true;
 
 (function (_global) {
-    // セーブ用のオブジェクトを作成
-    window.$saveParams = {};
-    window._updates = {};
+   // セーブ用のオブジェクトを作成
+   window.$saveParams = {};
+   window._updates = {};
 
-    var DataManager_createGameObjects = DataManager.createGameObjects;
-    DataManager.createGameObjects = function () {
-        DataManager_createGameObjects.call(this);
-        $saveParams = $saveParams || {};
-    }
+   var DataManager_createGameObjects = DataManager.createGameObjects;
+   DataManager.createGameObjects = function () {
+      DataManager_createGameObjects.call(this);
+      $saveParams = $saveParams || {};
+   };
 
-    var DataManager_makeSaveContents = DataManager.makeSaveContents;
-    DataManager.makeSaveContents = function () {
-        var contents = DataManager_makeSaveContents.call(this);
-        contents.saveParams = $saveParams;
-        return contents;
-    };
+   var DataManager_makeSaveContents = DataManager.makeSaveContents;
+   DataManager.makeSaveContents = function () {
+      var contents = DataManager_makeSaveContents.call(this);
+      contents.saveParams = $saveParams;
+      return contents;
+   };
 
-    var DataManager_extractSaveContents = DataManager.extractSaveContents;
-    DataManager.extractSaveContents = function (contents) {
-        DataManager_extractSaveContents.call(this, contents);
-        $saveParams = contents.saveParams;
-        for (name in _updates) {
-            // 各インスタンスの参照先を更新
-            _updates[name].update();
-        }
-    };
+   var DataManager_extractSaveContents = DataManager.extractSaveContents;
+   DataManager.extractSaveContents = function (contents) {
+      DataManager_extractSaveContents.call(this, contents);
+      $saveParams = contents.saveParams;
+      for (var name in _updates) {
+         // 各インスタンスの参照先を更新
+         _updates[name].update();
+      }
+   };
 
 })(this);
 
 // セーブオブジェクトの定義
 function saveObject() {
-    return this.initialize.apply(this, arguments);
+   return this.initialize.apply(this, arguments);
 }
 
 // セーブオブジェクトの初期化
 saveObject.prototype.initialize = function (name) {
-    if (name != null && name != "") {
-        // _nameにプラグインの名前を格納
-        this._name = name;
-        // 初期化されてなかったら初期化する
-        $saveParams[name] = $saveParams[name] || {};
-        // _paramsに$saveParams[name]をセット
-        this.saveParams = $saveParams[name];
-        // グローバル変数の_updates[name]に自身のインスタンスの参照を格納
-        _updates[name] = this;
-    }
-    else {
-        throw "saveObject name null exception";
-    }
+   if (name != null && name != "") {
+      // _nameにプラグインの名前を格納
+      this._name = name;
+      // 初期化されてなかったら初期化する
+      $saveParams[name] = $saveParams[name] || {};
+      // _paramsに$saveParams[name]をセット
+      this.saveParams = $saveParams[name];
+      // グローバル変数の_updates[name]に自身のインスタンスの参照を格納
+      _updates[name] = this;
+   }
+   else {
+      throw "saveObject name null exception";
+   }
 };
 
 saveObject.prototype.update = function () {
-    if (this.saveParams !== $saveParams[this._name]) {
-        this.saveParams = $saveParams[this._name];
-    }
+   if (this.saveParams !== $saveParams[this._name]) {
+      this.saveParams = $saveParams[this._name];
+   }
 };

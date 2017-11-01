@@ -60,172 +60,171 @@
  *  このプラグインはもうあなたのものです。
  */
 
-'use strict';//厳格なエラーチェック
+"use strict";//厳格なエラーチェック
 
 var ExSoundBuffer = {};
 var ExSound = {};
 var ExSoundType = {};
 
 (function (_global) {
-    var mgr = AudioManager;
-    //プラグインコマンド定義
-    var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
-    Game_Interpreter.prototype.pluginCommand = function (command, args) {
-        switch (command) {
-            case "SetSound":
-                Utility.setSound(args[0], args[1], args[2], args[3]);
-                break;
+   var mgr = AudioManager;
+   //プラグインコマンド定義
+   var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
+   Game_Interpreter.prototype.pluginCommand = function (command, args) {
+      switch (command) {
+         case "SetSound":
+            Utility.setSound(args[0], args[1], args[2], args[3]);
+            break;
 
-            case "DelSound":
-                Utility.delSound(args[0]);
-                break;
+         case "DelSound":
+            Utility.delSound(args[0]);
+            break;
 
-            case "SoundVolume":
-                Utility.soundVolume(args[0], args[1]);
-                break;
+         case "SoundVolume":
+            Utility.soundVolume(args[0], args[1]);
+            break;
 
-            case "PlaySound":
-                Utility.playSound(args[0], args[1], args[2], args[3]);
-                break;
+         case "PlaySound":
+            Utility.playSound(args[0], args[1], args[2], args[3]);
+            break;
 
-            case "StopSound":
-                Utility.stopSound(args[0]);
-                break;
-        }
-        Game_Interpreter_pluginCommand.call(this, command, args);
-    };
+         case "StopSound":
+            Utility.stopSound(args[0]);
+            break;
+      }
+      Game_Interpreter_pluginCommand.call(this, command, args);
+   };
 
-    function Utility() { };
-    Utility.setSound = function (soundId, soundType, soundName, volume) {
-        // パラメーターが無ければ実行しない
-        if (!soundId || !soundType || !soundName) return;
+   function Utility() { }
+   Utility.setSound = function (soundId, soundType, soundName, volume) {
+      // パラメーターが無ければ実行しない
+      if (!soundId || !soundType || !soundName) return;
 
-        var type;
-        // サウンドタイプを設定
-        if (soundType == "BGM") {
-            type = "bgm";
-        } else {
-            type = "bgs";
-        }
+      var type;
+      // サウンドタイプを設定
+      if (soundType == "BGM") {
+         type = "bgm";
+      } else {
+         type = "bgs";
+      }
 
-        // 古いサウンドバッファを削除
-        Utility.delSound(soundId);
+      // 古いサウンドバッファを削除
+      Utility.delSound(soundId);
 
-        // サウンド情報を構築
-        var sound = {};
-        sound.name = String(soundName);
-        sound.pan = 0;
-        sound.pitch = 100;
+      // サウンド情報を構築
+      var sound = {};
+      sound.name = String(soundName);
+      sound.pan = 0;
+      sound.pitch = 100;
 
-        // ボリュームが指定されていない場合100に固定
-        if (!isNaN(Number(volume))) {
-            sound.volume = Number(volume).clamp(0, 100);
-            console.log(sound.volume);
-        } else {
-            sound.volume = 100;
-        }
+      // ボリュームが指定されていない場合100に固定
+      if (!isNaN(Number(volume))) {
+         sound.volume = Number(volume).clamp(0, 100);
+      } else {
+         sound.volume = 100;
+      }
 
-        // バッファの作成とパラメーター設定
-        ExSoundBuffer[String(soundId)] = mgr.createBuffer(type, sound.name);
-        Utility.updateSoundParameters(ExSoundBuffer[String(soundId)], sound, soundType);
-        // サウンドの情報の登録
-        ExSound[String(soundId)] = Object.assign({}, sound);
-        // サウンドタイプの登録
-        ExSoundType[String(soundId)] = soundType;
-    }
+      // バッファの作成とパラメーター設定
+      ExSoundBuffer[String(soundId)] = mgr.createBuffer(type, sound.name);
+      Utility.updateSoundParameters(ExSoundBuffer[String(soundId)], sound, soundType);
+      // サウンドの情報の登録
+      ExSound[String(soundId)] = Object.assign({}, sound);
+      // サウンドタイプの登録
+      ExSoundType[String(soundId)] = soundType;
+   };
 
-    Utility.delSound = function (soundId) {
-        if (ExSoundBuffer[String(soundId)]) {
-            // バッファ削除
-            ExSoundBuffer[String(soundId)].stop();
-            ExSoundBuffer[String(soundId)] = null;
-            delete ExSoundBuffer[String(soundId)];
-            // サウンド情報の削除
-            ExSound[String(soundId)] = null;
-            delete ExSound[String(soundId)];
-            // サウンドタイプの削除
-            ExSoundType[String(soundId)] = null;
-            delete ExSoundType[String(soundId)];
-        }
-    }
+   Utility.delSound = function (soundId) {
+      if (ExSoundBuffer[String(soundId)]) {
+         // バッファ削除
+         ExSoundBuffer[String(soundId)].stop();
+         ExSoundBuffer[String(soundId)] = null;
+         delete ExSoundBuffer[String(soundId)];
+         // サウンド情報の削除
+         ExSound[String(soundId)] = null;
+         delete ExSound[String(soundId)];
+         // サウンドタイプの削除
+         ExSoundType[String(soundId)] = null;
+         delete ExSoundType[String(soundId)];
+      }
+   };
 
-    Utility.soundVolume = function (soundId, volume) {
-        if (ExSoundBuffer[soundId && String(soundId)] && volume) {
-            if (!isNaN(Number(volume))) {
-                ExSound[String(soundId)].volume = Number(volume).clamp(0, 100);
-            } else {
-                return;
-            }
-            Utility.updateSoundParameters(
-                ExSoundBuffer[String(soundId)],
-                ExSound[String(soundId)],
-                ExSoundType[String(soundId)]);
-        }
-    }
+   Utility.soundVolume = function (soundId, volume) {
+      if (ExSoundBuffer[soundId && String(soundId)] && volume) {
+         if (!isNaN(Number(volume))) {
+            ExSound[String(soundId)].volume = Number(volume).clamp(0, 100);
+         } else {
+            return;
+         }
+         Utility.updateSoundParameters(
+            ExSoundBuffer[String(soundId)],
+            ExSound[String(soundId)],
+            ExSoundType[String(soundId)]);
+      }
+   };
 
-    Utility.playSound = function (soundId, soundType, soundName, volume) {
-        if (ExSoundBuffer[String(soundId)]) {
+   Utility.playSound = function (soundId, soundType, soundName, volume) {
+      if (ExSoundBuffer[String(soundId)]) {
+         ExSoundBuffer[String(soundId)].play(true, 0);
+      } else if (soundId && soundType && soundName) {
+         Utility.setSound(soundId, soundType, soundName, volume);
+         if (ExSoundBuffer[String(soundId)]) {
             ExSoundBuffer[String(soundId)].play(true, 0);
-        } else if (soundId && soundType && soundName) {
-            Utility.setSound(soundId, soundType, soundName, volume);
-            if (ExSoundBuffer[String(soundId)]) {
-                ExSoundBuffer[String(soundId)].play(true, 0);
+         }
+      }
+   };
+
+   Utility.stopSound = function (soundId) {
+      if (ExSoundBuffer[String(soundId)]) {
+         ExSoundBuffer[String(soundId)].stop();
+      }
+   };
+
+   Utility.updateSoundParameters = function (buffer, sound, soundType) {
+      if (soundType == "BGS") {
+         mgr.updateBufferParameters(buffer, mgr._bgsVolume, sound);
+      } else if (soundType == "BGM") {
+         mgr.updateBufferParameters(buffer, mgr._bgmVolume, sound);
+      }
+   };
+
+   Object.defineProperty(AudioManager, "bgmVolume", {
+      get: function () {
+         return this._bgmVolume;
+      },
+      set: function (value) {
+         this._bgmVolume = value;
+         this.updateBgmParameters(this._currentBgm);
+         // MultiSoundPlayerの音量を変更
+         for (var soundId in ExSoundType) {
+            if (ExSoundType[String(soundId)] == "BGM") {
+               Utility.updateSoundParameters(
+                  ExSoundBuffer[String(soundId)],
+                  ExSound[String(soundId)],
+                  ExSoundType[String(soundId)]);
             }
-        }
-    }
+         }
+      },
+      configurable: true
+   });
 
-    Utility.stopSound = function (soundId) {
-        if (ExSoundBuffer[String(soundId)]) {
-            ExSoundBuffer[String(soundId)].stop();
-        }
-    }
-
-    Utility.updateSoundParameters = function (buffer, sound, soundType) {
-        if (soundType == "BGS") {
-            mgr.updateBufferParameters(buffer, mgr._bgsVolume, sound);
-        } else if (soundType == "BGM") {
-            mgr.updateBufferParameters(buffer, mgr._bgmVolume, sound);
-        }
-    }
-
-    Object.defineProperty(AudioManager, 'bgmVolume', {
-        get: function () {
-            return this._bgmVolume;
-        },
-        set: function (value) {
-            this._bgmVolume = value;
-            this.updateBgmParameters(this._currentBgm);
-            // MultiSoundPlayerの音量を変更
-            for (soundId in ExSoundType) {
-                if (ExSoundType[String(soundId)] == "BGM") {
-                    Utility.updateSoundParameters(
-                        ExSoundBuffer[String(soundId)],
-                        ExSound[String(soundId)],
-                        ExSoundType[String(soundId)]);
-                }
+   Object.defineProperty(AudioManager, "bgsVolume", {
+      get: function () {
+         return this._bgsVolume;
+      },
+      set: function (value) {
+         this._bgsVolume = value;
+         this.updateBgsParameters(this._currentBgs);
+         // MultiSoundPlayerの音量を変更
+         for (var soundId in ExSoundType) {
+            if (ExSoundType[String(soundId)] == "BGS") {
+               Utility.updateSoundParameters(
+                  ExSoundBuffer[String(soundId)],
+                  ExSound[String(soundId)],
+                  ExSoundType[String(soundId)]);
             }
-        },
-        configurable: true
-    });
-
-    Object.defineProperty(AudioManager, 'bgsVolume', {
-        get: function () {
-            return this._bgsVolume;
-        },
-        set: function (value) {
-            this._bgsVolume = value;
-            this.updateBgsParameters(this._currentBgs);
-            // MultiSoundPlayerの音量を変更
-            for (soundId in ExSoundType) {
-                if (ExSoundType[String(soundId)] == "BGS") {
-                    Utility.updateSoundParameters(
-                        ExSoundBuffer[String(soundId)],
-                        ExSound[String(soundId)],
-                        ExSoundType[String(soundId)]);
-                }
-            }
-        },
-        configurable: true
-    });
+         }
+      },
+      configurable: true
+   });
 
 })(this);

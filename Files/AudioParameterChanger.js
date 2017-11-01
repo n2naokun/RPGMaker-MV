@@ -38,52 +38,52 @@
  *  このプラグインはもうあなたのものです。
  */
 
-'use strict';//厳格なエラーチェック
+"use strict";//厳格なエラーチェック
 
 (function (_global) {
-	//プラグインコマンド定義
-	var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
-	Game_Interpreter.prototype.pluginCommand = function (command, args) {
-		switch (command) {
-			case "BGM":
-				if (AudioManager._currentBgm === null) break;
-				var bgm = Utility.ParameterProcessor(AudioManager._currentBgm, args);
-				AudioManager.updateBgmParameters(bgm);
-				break;
-			case "BGS":
-				if (AudioManager._currentBgs === null) break;
-				var bgs = Utility.ParameterProcessor(AudioManager._currentBgs, args);
-				AudioManager.updateBgsParameters(bgs);
-				break;
-		}
-		Game_Interpreter_pluginCommand.call(this, command, args);
-	};
+   //プラグインコマンド定義
+   var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
+   Game_Interpreter.prototype.pluginCommand = function (command, args) {
+      switch (command) {
+         case "BGM":
+            if (AudioManager._currentBgm === null) break;
+            var bgm = Utility.ParameterProcessor(AudioManager._currentBgm, args);
+            AudioManager.updateBgmParameters(bgm);
+            break;
+         case "BGS":
+            if (AudioManager._currentBgs === null) break;
+            var bgs = Utility.ParameterProcessor(AudioManager._currentBgs, args);
+            AudioManager.updateBgsParameters(bgs);
+            break;
+      }
+      Game_Interpreter_pluginCommand.call(this, command, args);
+   };
 
-	function Utility() { };
-	Utility.ParameterProcessor = function (InputAudio, args) {
-		var audio = InputAudio;
-		for (var i = 0; i < args.length; i++) {
-			//数字の場合は処理を飛ばす
-			if (!isNaN(args[i])) continue;
-			switch (args[i]) {
-				case "Volume":
-					if (!isNaN(args[i + 1])) {
-						audio.volume = Number(args[i + 1]).clamp(0, 100);
-					}
-					break;
-				case "Pitch":
-					if (!isNaN(args[i + 1])) {
-						audio.pitch = Number(args[i + 1]).clamp(50, 150);
-					}
-					break;
-				case "Pan":
-					if (!isNaN(args[i + 1])) {
-						audio.pan = Number(args[i + 1]).clamp(-100, 100);
-					}
-					break;
-			}
-		}
-		return audio;
-	}
+   function Utility() { }
+   Utility.ParameterProcessor = function (InputAudio, args) {
+      var audio = InputAudio;
+      for (var i = 0; i < args.length; i++) {
+         //数字の場合は処理を飛ばす
+         if (!isNaN(args[i])) continue;
+         switch (args[i]) {
+            case "Volume":
+               if (!isNaN(args[i + 1])) {
+                  audio.volume = Number(args[i + 1]).clamp(0, 100);
+               }
+               break;
+            case "Pitch":
+               if (!isNaN(args[i + 1])) {
+                  audio.pitch = Number(args[i + 1]).clamp(50, 150);
+               }
+               break;
+            case "Pan":
+               if (!isNaN(args[i + 1])) {
+                  audio.pan = Number(args[i + 1]).clamp(-100, 100);
+               }
+               break;
+         }
+      }
+      return audio;
+   };
 
 })(this);

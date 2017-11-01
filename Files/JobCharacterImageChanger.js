@@ -35,28 +35,28 @@
  *  このプラグインはもうあなたのものです。
  */
 
-'use strict';//厳格なエラーチェック
+"use strict";//厳格なエラーチェック
 
 (function (_global) {
-    // クラスチェンジされると呼ばれる処理
-    var Game_Actor_changeClass = Game_Actor.prototype.changeClass;
-    Game_Actor.prototype.changeClass = function (classId, keepExp) {
-        Game_Actor_changeClass.call(this, classId, keepExp);
-        // クラスチェンジされたら歩行イラストを変更
-        this.CharaImageChange();
-    }
+   // クラスチェンジされると呼ばれる処理
+   var Game_Actor_changeClass = Game_Actor.prototype.changeClass;
+   Game_Actor.prototype.changeClass = function (classId, keepExp) {
+      Game_Actor_changeClass.call(this, classId, keepExp);
+      // クラスチェンジされたら歩行イラストを変更
+      this.CharaImageChange();
+   };
 
-    // 歩行イラストを変更する処理
-    Game_Actor.prototype.CharaImageChange = function () {
-        var dataClass = $dataClasses[this._classId];
+   // 歩行イラストを変更する処理
+   Game_Actor.prototype.CharaImageChange = function () {
+      var dataClass = $dataClasses[this._classId];
 
-        if (dataClass.meta.CharaImage && dataClass.meta.ImageNum && !isNaN(Number(dataClass.meta.ImageNum))) {
-            var CharaImage = String(dataClass.meta.CharaImage);
-            var ImageNum = Number(dataClass.meta.ImageNum);
+      if (dataClass.meta.CharaImage && dataClass.meta.ImageNum && !isNaN(Number(dataClass.meta.ImageNum))) {
+         var CharaImage = String(dataClass.meta.CharaImage);
+         var ImageNum = Number(dataClass.meta.ImageNum);
 
-            this.setCharacterImage(CharaImage, ImageNum);
-            $gamePlayer.refresh()
-        }
-    }
+         this.setCharacterImage(CharaImage, ImageNum);
+         $gamePlayer.refresh();
+      }
+   };
 
 })(this);

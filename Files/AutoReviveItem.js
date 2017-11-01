@@ -102,127 +102,127 @@
  *   ターン数を引き継ぐ処理をしていないため未保証。
  */
 
-'use strict';//厳格なエラーチェック
+"use strict";//厳格なエラーチェック
 
 (function (_global) {
-    function toBoolean(str) {
-        if (str == "true") return true;
-        return false;
-    }
+   function toBoolean(str) {
+      if (str == "true") return true;
+      return false;
+   }
 
-    var params = PluginManager.parameters('AutoReviveItem');
-    var setting = {};
-    setting.HPtype = Number(params['RestoreHPtype']);
-    setting.HPratio = Number(params['RestoreHPRatio']);
-    setting.HPnum = Number(params['RestoreHPnum']);
-    setting.RestoreMP = toBoolean(params['RestoreMP']);
-    setting.MPtype = Number(params['RestoreMPtype']);
-    setting.MPratio = Number(params['RestoreMPRatio']);
-    setting.MPnum = Number(params['RestoreMPnum']);
-    setting.MarkStateNotClear = toBoolean(params['MarkStateNotClear']);
-    setting.ExeCommonEvent = toBoolean(params['ExecuteCommonEvent']);
-    setting.CallEvent = Number(params['CallCommonEvent']);
+   var params = PluginManager.parameters("AutoReviveItem");
+   var setting = {};
+   setting.HPtype = Number(params["RestoreHPtype"]);
+   setting.HPratio = Number(params["RestoreHPRatio"]);
+   setting.HPnum = Number(params["RestoreHPnum"]);
+   setting.RestoreMP = toBoolean(params["RestoreMP"]);
+   setting.MPtype = Number(params["RestoreMPtype"]);
+   setting.MPratio = Number(params["RestoreMPRatio"]);
+   setting.MPnum = Number(params["RestoreMPnum"]);
+   setting.MarkStateNotClear = toBoolean(params["MarkStateNotClear"]);
+   setting.ExeCommonEvent = toBoolean(params["ExecuteCommonEvent"]);
+   setting.CallEvent = Number(params["CallCommonEvent"]);
 
-    var BattleManager_checkBattleEnd = BattleManager.checkBattleEnd;
-    BattleManager.checkBattleEnd = function () {
-        //全滅判定チェック
-        if ($gameParty.isAllDead()) {//全滅なら実行
-            //所持アイテムをチェック
-            var dat = Utility.CheckReviveItem();
-            if (dat.flag) {
-                $gameParty.reviveItemUse(dat.item);
-                return false;
+   var BattleManager_checkBattleEnd = BattleManager.checkBattleEnd;
+   BattleManager.checkBattleEnd = function () {
+      //全滅判定チェック
+      if ($gameParty.isAllDead()) {//全滅なら実行
+         //所持アイテムをチェック
+         var dat = Utility.CheckReviveItem();
+         if (dat.flag) {
+            $gameParty.reviveItemUse(dat.item);
+            return false;
+         }
+      }
+      BattleManager_checkBattleEnd.call(this);
+   };
+
+   var Game_BattlerBase_initMembers = Game_BattlerBase.prototype.initMembers;
+   Game_BattlerBase.prototype.initMembers = function () {
+      Game_BattlerBase_initMembers.call(this);
+      this._remainStates = [];
+   };
+
+   var Game_BattlerBase_clearStates = Game_BattlerBase.prototype.clearStates;
+   Game_BattlerBase.prototype.clearStates = function () {
+      if (this._states != null) {
+         var dat = Utility.CheckReviveItem();
+         if (this._states.length != 0 && setting.MarkStateNotClear && dat.flag) {
+            this._remainStates = [];
+            this._states.forEach(function (statesId) {
+               if (Utility.isMarkState(statesId)) {
+                  this._remainStates.push(statesId);
+               }
+            }, this);
+         }
+      }
+      Game_BattlerBase_clearStates.call(this);
+   };
+
+   Game_Party.prototype.reviveItemUse = function (item) {
+      this.battleMembers().forEach(function (actor) {
+         if (actor._hp === 0) {
+            var HP;
+            var MP = actor._mp;
+            if (setting.HPtype === 0) {
+               HP = actor.mhp * (setting.HPratio / 100);
+            } else if (setting.HPtype === 1) {
+               HP = setting.HPnum;
             }
-        }
-        BattleManager_checkBattleEnd.call(this);
-    }
-
-    var Game_BattlerBase_initMembers = Game_BattlerBase.prototype.initMembers;
-    Game_BattlerBase.prototype.initMembers = function () {
-        Game_BattlerBase_initMembers.call(this);
-        this._remainStates = [];
-    }
-
-    var Game_BattlerBase_clearStates = Game_BattlerBase.prototype.clearStates;
-    Game_BattlerBase.prototype.clearStates = function () {
-        if (this._states != null) {
-            var dat = Utility.CheckReviveItem();
-            if (this._states.length != 0 && setting.MarkStateNotClear && dat.flag) {
-                this._remainStates = [];
-                this._states.forEach(function (statesId) {
-                    if (Utility.isMarkState(statesId)) {
-                        this._remainStates.push(statesId);
-                    }
-                }, this);
+            actor.setHp(HP);
+            if (setting.RestoreMP) {
+               if (setting.MPtype === 0) {
+                  if (MP < actor.mmp * (setting.MPratio / 100)) {
+                     MP = actor.mmp * (setting.MPratio / 100);
+                  }
+               } else if (setting.MPtype === 1) {
+                  if (MP < setting.MPnum) {
+                     MP = setting.MPnum;
+                  }
+               }
+               actor.setMp(MP);
             }
-        }
-        Game_BattlerBase_clearStates.call(this);
-    }
-
-    Game_Party.prototype.reviveItemUse = function (item) {
-        this.battleMembers().forEach(function (actor) {
-            if (actor._hp === 0) {
-                var HP;
-                var MP = actor._mp;
-                if (setting.HPtype === 0) {
-                    HP = actor.mhp * (setting.HPratio / 100);
-                } else if (setting.HPtype === 1) {
-                    HP = setting.HPnum;
-                }
-                actor.setHp(HP);
-                if (setting.RestoreMP) {
-                    if (setting.MPtype === 0) {
-                        if (MP < (actor.mmp * (setting.MPratio / 100))) {
-                            MP = actor.mmp * (setting.MPratio / 100);
-                        }
-                    } else if (setting.MPtype === 1) {
-                        if (MP < setting.MPnum) {
-                            MP = setting.MPnum;
-                        }
-                    }
-                    actor.setMp(MP);
-                }
-                if (setting.MarkStateNotClear) {
-                    actor._remainStates.forEach(function (states) {
-                        actor._states.push(states);
-                    }, this);
-                    actor._remainStates = [];
-                } else {
-                    actor.clearStates();
-                }
-            }
-        }, this);
-
-        if (setting.ExeCommonEvent) {
-            if (!isNaN(setting.CallEvent)) {
-                $gameTemp.reserveCommonEvent(setting.CallEvent);
-            }
-        }
-        $gameParty.consumeItem(item);
-    };
-
-    function Utility() { };
-    //回復時に残すかチェック
-    Utility.isMarkState = function (id) {
-        var dat = $dataStates[id].meta;
-        if (dat.ReviveNotClear !== undefined) {
-            return true;
-        }
-        return false;
-    }
-
-    //復活アイテムの確認
-    Utility.CheckReviveItem = function () {
-        var dat = {};
-        dat.flag = false;
-        $gameParty.items().forEach(function (item) {
-            if (item.meta.ReviveItem) {
-                dat.flag = true;
-                dat.item = item;
+            if (setting.MarkStateNotClear) {
+               actor._remainStates.forEach(function (states) {
+                  actor._states.push(states);
+               }, this);
+               actor._remainStates = [];
             } else {
-                return;
+               actor.clearStates();
             }
-        }, this);
-        return dat;
-    }
+         }
+      }, this);
+
+      if (setting.ExeCommonEvent) {
+         if (!isNaN(setting.CallEvent)) {
+            $gameTemp.reserveCommonEvent(setting.CallEvent);
+         }
+      }
+      $gameParty.consumeItem(item);
+   };
+
+   function Utility() { }
+   //回復時に残すかチェック
+   Utility.isMarkState = function (id) {
+      var dat = $dataStates[id].meta;
+      if (dat.ReviveNotClear !== undefined) {
+         return true;
+      }
+      return false;
+   };
+
+   //復活アイテムの確認
+   Utility.CheckReviveItem = function () {
+      var dat = {};
+      dat.flag = false;
+      $gameParty.items().forEach(function (item) {
+         if (item.meta.ReviveItem) {
+            dat.flag = true;
+            dat.item = item;
+         } else {
+            return;
+         }
+      }, this);
+      return dat;
+   };
 })(this);

@@ -31,54 +31,54 @@
  *  このプラグインはもうあなたのものです。
  */
 
-'use strict';//厳格なエラーチェック
+"use strict";//厳格なエラーチェック
 
 (function (_global) {
-    // スイッチを作成
-    window.$switches = {};
+   // スイッチを作成
+   window.$switches = {};
 
-    var DataManager_createGameObjects = DataManager.createGameObjects;
-    DataManager.createGameObjects = function () {
-        DataManager_createGameObjects.call(this);
-        $switches = new exSwitches();
-    }
+   var DataManager_createGameObjects = DataManager.createGameObjects;
+   DataManager.createGameObjects = function () {
+      DataManager_createGameObjects.call(this);
+      $switches = new exSwitches();
+   };
 
-    var DataManager_makeSaveContents = DataManager.makeSaveContents;
-    DataManager.makeSaveContents = function () {
-        var contents = DataManager_makeSaveContents.call(this);
-        contents.exSwitches = $switches;
-        return contents;
-    };
+   var DataManager_makeSaveContents = DataManager.makeSaveContents;
+   DataManager.makeSaveContents = function () {
+      var contents = DataManager_makeSaveContents.call(this);
+      contents.exSwitches = $switches;
+      return contents;
+   };
 
-    var DataManager_extractSaveContents = DataManager.extractSaveContents;
-    DataManager.extractSaveContents = function (contents) {
-        DataManager_extractSaveContents.call(this, contents);
-        $switches = contents.exSwitches;
-    };
+   var DataManager_extractSaveContents = DataManager.extractSaveContents;
+   DataManager.extractSaveContents = function (contents) {
+      DataManager_extractSaveContents.call(this, contents);
+      $switches = contents.exSwitches;
+   };
 
-    var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
-    Game_Interpreter.prototype.pluginCommand = function (command, args) {
-        switch (command) {
-            case "SetSwitch":
-                $switches[args[0]] = toBoolean(args[1]);
-                break;
-        }
-        Game_Interpreter_pluginCommand.call(this, command, args);
-    };
+   var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
+   Game_Interpreter.prototype.pluginCommand = function (command, args) {
+      switch (command) {
+         case "SetSwitch":
+            $switches[args[0]] = toBoolean(args[1]);
+            break;
+      }
+      Game_Interpreter_pluginCommand.call(this, command, args);
+   };
 
-    function toBoolean(str) {
-        if (str === "ON" || str === "True" || str === "true" || str === "有効") {
-            return true;
-        } else if (str === "OFF" || str === "False" || str === "false" || str === "無効") {
-            return false;
-        } else {
-            return false;
-        }
-    }
+   function toBoolean(str) {
+      if (str === "ON" || str === "True" || str === "true" || str === "有効") {
+         return true;
+      } else if (str === "OFF" || str === "False" || str === "false" || str === "無効") {
+         return false;
+      } else {
+         return false;
+      }
+   }
 
-    // 空のオブジェクトを定義
-    function exSwitches() {
+   // 空のオブジェクトを定義
+   function exSwitches() {
 
-    }
+   }
 
 })(this);
