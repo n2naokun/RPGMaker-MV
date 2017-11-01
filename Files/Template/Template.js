@@ -26,6 +26,9 @@
  *  このプラグインはもうあなたのものです。
  */
 
+// ESLint向けグローバル変数宣言
+/*global */
+
 "use strict";//厳格なエラーチェック
 
 (function (_global) {

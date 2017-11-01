@@ -31,6 +31,9 @@
  *  このプラグインはもうあなたのものです。
  */
 
+// ESLint向けグローバル変数宣言
+/*global $switches:true*/
+
 "use strict";//厳格なエラーチェック
 
 (function (_global) {

@@ -81,6 +81,9 @@
  *  このプラグインはもうあなたのものです。
  */
 
+// ESLint向けグローバル変数宣言
+/*global Scene_Class*/
+
 "use strict";
 
 var Imported = Imported || {};

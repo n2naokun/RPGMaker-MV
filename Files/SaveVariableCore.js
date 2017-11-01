@@ -57,6 +57,9 @@
  *  このプラグインはもうあなたのものです。
  */
 
+// ESLint向けグローバル変数宣言
+/*global $saveParams:true , _updates:true*/
+
 "use strict";//厳格なエラーチェック
 
 var Imported = Imported || {};
