@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.5 2017/11/03 英数字を処理するときに半角を使用するように修正
 // 1.0.4 2017/10/28 競合が発生する可能性のあるバグを修正
 // 1.0.3 2017/10/19 バグ修正
 // 1.0.2 2017/10/19 書き忘れていた処理を追加
@@ -159,3 +160,27 @@ Window_PasswordInput.prototype.onNameOk = function () {
    SoundManager.playOk();
    this.callOkHandler();
 };
+
+Window_PasswordInput.prototype.table = function () {
+   if ($gameSystem.isJapanese()) {
+      return [Window_NameInput.JAPAN1,
+      Window_NameInput.JAPAN2,
+      Window_PasswordInput.JAPAN3];
+   } else if ($gameSystem.isRussian()) {
+      return [Window_NameInput.RUSSIA];
+   } else {
+      return [Window_NameInput.LATIN1,
+      Window_NameInput.LATIN2];
+   }
+};
+
+Window_PasswordInput.JAPAN3 =
+   ['A', 'B', 'C', 'D', 'E', 'a', 'b', 'c', 'd', 'e',
+      'F', 'G', 'H', 'I', 'J', 'f', 'g', 'h', 'i', 'j',
+      'K', 'L', 'M', 'N', 'O', 'k', 'l', 'm', 'n', 'o',
+      'P', 'Q', 'R', 'S', 'T', 'p', 'q', 'r', 's', 't',
+      'U', 'V', 'W', 'X', 'Y', 'u', 'v', 'w', 'x', 'y',
+      'Z', '[', ']', '^', '_', 'z', '{', '}', '|', '~',
+      '0', '1', '2', '3', '4', '!', '#', '$', '%', '&',
+      '5', '6', '7', '8', '9', '(', ')', '*', '+', '-',
+      '/', '=', '@', '<', '>', ':', ';', ' ', 'かな', '決定'];
