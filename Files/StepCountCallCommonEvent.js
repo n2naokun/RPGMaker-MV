@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.1 2017/11/18 説明文と細かい処理を変更
 // 1.0.0 2017/11/17 初版
 // ----------------------------------------------------------------------------
 // [Twitter]: https://twitter.com/n2naokun/
@@ -14,12 +15,15 @@
 
 /*:
  * @plugindesc 指定歩数後にコモンイベントを実行するプラグイン
- * ※要SaveVariableCore
+ * ※要SaveVariableCore（今プラグインより先に読み込んでください）
  * @author n2naokun(柊菜緒)
  *
- * @help ※前提となるSaveVariableCoreを導入してください。
+ * @help ※前提となるSaveVariableCoreを導入し、このプラグインより先に読み込んでください。
+ * ※SetStepEventにて同じ名前のイベントをセットアップすると一度DelStepEventによって
+ *  同名のイベントが一度削除されてから再セットアップされます。
+ * 
  * プラグインコマンドにて
- * SetStepEvent イベント名 歩数 実行するイベント
+ * SetStepEvent イベント名 歩数 実行するコモンイベントの番号
  * 歩数イベントをセットアップします。
  * （上手く初期化できなかった場合有効化できません）
  * 
@@ -41,6 +45,7 @@
  * スクリプトにて
  * $EVsteps("イベント名")
  * 歩数イベントの現在の歩数を取得します。
+ * また、取得に失敗した場合は-1が送られます。
  * ※イベント名はダブルクォーテーション " またはシングルクォーテーション ' で囲むこと。
  * 
  * 
@@ -120,10 +125,12 @@
    };
 
 
+
    window.$EVsteps = function (EventName) {
-      if (!EventName && !Events) return;
+      if (!EventName || !Events) return -1;
       return Events.saveParams[String(EventName)]._steps;
    };
+
 
 
    function Utility() { }
