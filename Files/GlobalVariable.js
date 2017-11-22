@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.1 2017/11/22 変数取得機能周りを少し変更
 // 1.0.0 2017/11/22 初版
 // ----------------------------------------------------------------------------
 // [Twitter]: https://twitter.com/n2naokun/
@@ -19,7 +20,7 @@
  * @help 使い方
  * イベントのスクリプトにて
  * 読み込み
- * GlobalVars.read("変数名");
+ * GlobalVars.get("変数名");
  * 書き込み
  * GlobalVars.set("変数名", 値 );
  * 値の保存
@@ -65,10 +66,8 @@ ConfigManager.GlobalVars = {};
 
    // グローバル関数拡張
    window.GlobalVars = {};
-   GlobalVars.read = function (name) {
-      if (ConfigManager.GlobalVars[name]) {
-         return ConfigManager.GlobalVars[name];
-      }
+   GlobalVars.get = function (name) {
+      return ConfigManager.GlobalVars[name];
    };
 
    GlobalVars.set = function (name, arg) {
