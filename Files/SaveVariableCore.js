@@ -6,6 +6,8 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.1.1 2017/12/19 開発途中から追加した場合ロード後にエラーが発生するかもしれない
+//                  バグの修正
 // 1.1.0 2017/10/31 大幅な仕様変更
 // 1.0.0 2017/10/29 初版
 // ----------------------------------------------------------------------------
@@ -86,7 +88,7 @@ Imported.SaveVariableCore = true;
    var DataManager_extractSaveContents = DataManager.extractSaveContents;
    DataManager.extractSaveContents = function (contents) {
       DataManager_extractSaveContents.call(this, contents);
-      $saveParams = contents.saveParams;
+      $saveParams = contents.saveParams || {};
       for (var name in _updates) {
          // 各インスタンスの参照先を更新
          _updates[name].update();
