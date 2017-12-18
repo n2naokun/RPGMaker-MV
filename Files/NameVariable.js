@@ -6,6 +6,8 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.1 2017/12/19 その他のプラグインとの連携機能と途中から追加した場合に
+//                  発生するバグの修正
 // 1.0.0 2017/10/29 初版
 // ----------------------------------------------------------------------------
 // [Twitter]: https://twitter.com/n2naokun/
@@ -36,6 +38,9 @@
 
 "use strict";//厳格なエラーチェック
 
+var Imported = Imported || {};
+Imported.NameVariable = true;
+
 (function (_global) {
    // スイッチを作成
    window.$switches = {};
@@ -43,7 +48,7 @@
    var DataManager_createGameObjects = DataManager.createGameObjects;
    DataManager.createGameObjects = function () {
       DataManager_createGameObjects.call(this);
-      $switches = new exSwitches();
+      $switches = $switches || {};
    };
 
    var DataManager_makeSaveContents = DataManager.makeSaveContents;
@@ -56,7 +61,7 @@
    var DataManager_extractSaveContents = DataManager.extractSaveContents;
    DataManager.extractSaveContents = function (contents) {
       DataManager_extractSaveContents.call(this, contents);
-      $switches = contents.exSwitches;
+      $switches = contents.exSwitches || {};
    };
 
    var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
@@ -77,11 +82,6 @@
       } else {
          return false;
       }
-   }
-
-   // 空のオブジェクトを定義
-   function exSwitches() {
-
    }
 
 })(this);
