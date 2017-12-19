@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.3 2017/12/19 バトル終了時リザルトが表示されない可能性があるバグを修正
 // 1.0.2 2017/10/28 競合が発生する可能性のあるバグを修正
 // 1.0.1 2017/10/25 一部プラグインパラメーターが上手く動作しないのを修正
 // 1.0.0 2017/10/18 初版
@@ -134,7 +135,7 @@
             return false;
          }
       }
-      BattleManager_checkBattleEnd.call(this);
+      return BattleManager_checkBattleEnd.call(this);
    };
 
    var Game_BattlerBase_initMembers = Game_BattlerBase.prototype.initMembers;
