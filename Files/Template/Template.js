@@ -6,7 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
-// 1.0.0 2018/02/08 初版
+// 1.0.0 2018/02/19 初版
 // ----------------------------------------------------------------------------
 // [Twitter]: https://twitter.com/n2naokun/
 // [GitHub] : https://github.com/n2naokun/
@@ -30,6 +30,10 @@
 /*global */
 
 "use strict";//厳格なエラーチェック
+
+var Imported = Imported || {};
+Imported.Template = true;
+// 他のプラグインとの連携用シンボル
 
 (function (_global) {
    // ここにプラグイン処理を記載
