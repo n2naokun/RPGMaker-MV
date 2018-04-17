@@ -13,4 +13,8 @@ RPGツクールMV向けのプラグインを公開しています。
 [Twitter] : <https://twitter.com/n2naokun/>  
 [GitHub]  : <https://github.com/n2naokun/>  
 
-※使ったよ！とか報告があったりするとめっちゃ喜びます。
+※使ったよ！とか報告があったりするとめっちゃ喜びます。  
+
+随時投げ銭を受け付けております。  
+Kyash ID  
+n2naokun  
