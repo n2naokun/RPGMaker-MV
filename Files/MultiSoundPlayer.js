@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.2.0 2018/07/02 パンとピッチの設定に対応
 // 1.1.1 2017/10/28 競合が発生する可能性のあるバグを修正
 // 1.1.0 2017/10/22 事前読み込みに対応しました
 // 1.0.0 2017/10/22 初版
@@ -42,6 +43,15 @@
  * 音量を変える場合
  * SoundVolume 再生識別子 音量
  * 再生識別子で指定したサウンドの音量を変更します。
+ * 
+ * パンを変える場合
+ * SoundPan 再生識別子 パン
+ * 
+ * ピッチを変える場合
+ * SoundPitch 再生識別子 ピッチ（ツクールよりも広範囲に設定可能）
+ * ※あまり極端な値にすると動作の保証ができません（笑）
+ * また、再生中に変更すると最初から再生しなおされます。
+ * SetSoundとPlaySoundの間で変更した方が精神衛生上安全でしょう。
  * 
  * 停止する場合
  * StopSound 再生識別子
@@ -82,6 +92,14 @@ var ExSoundType = {};
 
          case "SoundVolume":
             Utility.soundVolume(args[0], args[1]);
+            break;
+
+         case "SoundPan":
+            Utility.soundPan(args[0], args[1]);
+            break;
+
+         case "SoundPitch":
+            Utility.soundPitch(args[0], args[1]);
             break;
 
          case "PlaySound":
@@ -152,6 +170,34 @@ var ExSoundType = {};
       if (ExSoundBuffer[soundId && String(soundId)] && volume) {
          if (!isNaN(Number(volume))) {
             ExSound[String(soundId)].volume = Number(volume).clamp(0, 100);
+         } else {
+            return;
+         }
+         Utility.updateSoundParameters(
+            ExSoundBuffer[String(soundId)],
+            ExSound[String(soundId)],
+            ExSoundType[String(soundId)]);
+      }
+   };
+
+   Utility.soundPan = function (soundId, pan) {
+      if (ExSoundBuffer[soundId && String(soundId)] && pan) {
+         if (!isNaN(Number(pan))) {
+            ExSound[String(soundId)].pan = Number(pan).clamp(-100, 100);
+         } else {
+            return;
+         }
+         Utility.updateSoundParameters(
+            ExSoundBuffer[String(soundId)],
+            ExSound[String(soundId)],
+            ExSoundType[String(soundId)]);
+      }
+   };
+
+   Utility.soundPitch = function (soundId, pitch) {
+      if (ExSoundBuffer[soundId && String(soundId)] && pitch) {
+         if (!isNaN(Number(pitch))) {
+            ExSound[String(soundId)].pitch = Math.round(pitch);
          } else {
             return;
          }
