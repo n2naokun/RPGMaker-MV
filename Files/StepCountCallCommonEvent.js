@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.0.2 2018/07/26 メニューからタイトルに戻ると予約したイベントが残るバグを修正
 // 1.0.1 2017/11/18 説明文と細かい処理を変更
 // 1.0.0 2017/11/17 初版
 // ----------------------------------------------------------------------------
@@ -109,6 +110,14 @@
       console.error("SaveVariableCoreを読み込んでください");
    }
 
+   var Scene_Title_initialize = Scene_Title.prototype.initialize;
+   Scene_Title.prototype.initialize = function () {
+      Scene_Title_initialize.call(this);
+      if (Events) {
+         Events.saveParams = {};
+      }
+   };
+
    function StepEvent() {
       this.initialize.apply(this, arguments);
    }
@@ -123,8 +132,6 @@
          this._enabled = false;
       }
    };
-
-
 
    window.$EVsteps = function (EventName) {
       if (!EventName || !Events) return -1;
