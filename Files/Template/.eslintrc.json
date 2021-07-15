@@ -269,6 +269,9 @@
       ],
       "no-useless-escape": [
          "off"
+      ],
+      "no-inner-declarations": [
+         "off"
       ]
    }
 }
