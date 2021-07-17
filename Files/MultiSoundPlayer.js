@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.3.1 2021/07/17 他のプラグインとの連携用のシンボルを追加
 // 1.3.0 2021/07/16 全停止・全削除、BGM/BGS個別での全停止・全削除を実装
 //                  どうして誰もTwitterにリクエストしてくれなかったの……
 // 1.2.0 2018/07/02 パンとピッチの設定に対応(旧バージョンとの互換有り)
@@ -97,6 +98,10 @@
  */
 
 "use strict";//厳格なエラーチェック
+
+var Imported = Imported || {};
+Imported.MultiSoundPlayer = true;
+// 他のプラグインとの連携用シンボル
 
 var ExSoundBuffer = {};
 var ExSound = {};
