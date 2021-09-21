@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.2.2 2021/09/22 中央を起点にズームするように変更
 // 1.2.1 2017/10/25 バグ修正
 // 1.2.0 2017/10/25 ステータス画面での画像のズームと移動を実装しました
 // 1.1.1 2017/10/25 競合が発生する可能性のあるバグを修正
@@ -211,6 +212,13 @@ Imported.MenuJobBackground = true;
          if (!this._zoom && !isNaN(zoomScale)) {
             image.scale.x = zoomScale;
             image.scale.y = zoomScale;
+            // 2021/09/22 中央を起点にズームするように変更
+            var zoomWidth, zoomHeight;
+            zoomWidth = image.width * zoomScale;
+            zoomHeight = image.height * zoomScale;
+            image.x = (image.width - zoomWidth) / 2;
+            image.y = (image.height - zoomHeight) / 2;
+                // ここまで
             this._zoom = true;
          } else {
             image.scale.x = 1;
