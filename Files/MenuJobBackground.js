@@ -6,6 +6,8 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.3.0 2021/09/27 長押しによる斜め移動に対応
+//                  1秒以上長押しすると3倍速で移動するように変更
 // 1.2.2 2021/09/22 中央を起点にズームするように変更
 // 1.2.1 2017/10/25 バグ修正
 // 1.2.0 2017/10/25 ステータス画面での画像のズームと移動を実装しました
@@ -232,22 +234,53 @@ Imported.MenuJobBackground = true;
 
    // ズーム時カーソルキーで画像を移動させる処理
    var Scene_Status_update = Scene_Status.prototype.update;
+   var repeatCount = 0;
    Scene_Status.prototype.update = function () {
       Scene_Status_update.call(this);
       if (flag.Status && flag.ImageForeground && this._ImageWindow.active &&
          flag.ImageZoom && this._zoom && !isNaN(movePixel)) {
          var image = this._jobImage;
-         if (Input.isRepeated("up")) {
-            image.y -= movePixel;
+         if (Input.isRepeated('up') || Input.isRepeated('down') ||
+            Input.isRepeated('left') || Input.isRepeated('right')) {
+            var tmp = movePixel;
+            if (repeatCount < 60) {
+               repeatCount += Input.keyRepeatInterval;
+            } else {
+               tmp = movePixel * 3;
+            }
+            switch (Input.dir8) {
+               case 8:
+                  image.y -= tmp;
+                  break;
+               case 2:
+                  image.y += tmp;
+                  break;
+               case 4:
+                  image.x -= tmp;
+                  break;
+               case 6:
+                  image.x += tmp;
+                  break;
+               case 7:
+                  image.y -= tmp;
+                  image.x -= tmp;
+                  break;
+               case 9:
+                  image.y -= tmp;
+                  image.x += tmp;
+                  break;
+               case 1:
+                  image.y += tmp;
+                  image.x -= tmp;
+                  break;
+               case 3:
+                  image.y += tmp;
+                  image.x += tmp;
+                  break;
+            }
          }
-         if (Input.isRepeated("down")) {
-            image.y += movePixel;
-         }
-         if (Input.isRepeated("left")) {
-            image.x -= movePixel;
-         }
-         if (Input.isRepeated("right")) {
-            image.x += movePixel;
+         if (Input.dir8 === 0) {
+            repeatCount = 0;
          }
       }
    };
