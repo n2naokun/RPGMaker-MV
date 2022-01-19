@@ -6,6 +6,9 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.5.0 2022/01/20 メニューとステータス画面で別々に位置オフセットを指定できるように変更
+//                  メニューとステータス画面それぞれの位置オフセット機能を
+//                  プラグインパラメータから無効化できるように変更
 // 1.4.0 2022/01/15 画像の位置オフセット表示に対応
 //                  分かりやすいようにファイル名変更
 // 1.3.0 2021/09/27 長押しによる斜め移動に対応
@@ -37,9 +40,13 @@
  * 指定の方法
  * <JobPic:画像ファイル名>
  * 
- * 画像表示位置のオフセット指定
- * <jPicOffsetX:オフセットX座標>
- * <jPicOffsetY:オフセットY座標>
+ * メニュー画面表示位置オフセット指定
+ * <jPicMenuOffsetX:オフセットX座標>
+ * <jPicMenuOffsetY:オフセットY座標>
+ * 
+ * ステータス画面表示位置オフセット指定
+ * <jPicStatusOffsetX:オフセットX座標>
+ * <jPicStatusOffsetY:オフセットY座標>
  * 
  * 画像格納フォルダ
  * /img/jobpicture/
@@ -59,10 +66,20 @@
  * @desc メニュー画面の背景に画像を表示するかの設定（既定値：有効）
  * @default true
  * 
+ * @param MenuImageOffset
+ * @type boolean
+ * @desc メニュー画面の背景画像の位置オフセット機能を使用するかの設定（規定値：有効）
+ * @default true
+ * 
  * @param StatesBackground
  * @type boolean
  * @desc ステータス画面の背景に画像を表示するかの設定（既定値：無効）
  * @default false
+ * 
+ * @param StatusImageOffset
+ * @type boolean
+ * @desc ステータス画面の背景画像の位置オフセット機能を使用するかの設定（規定値：有効）
+ * @default true
  * 
  * @param StatesJobImageForeground
  * @type boolean
@@ -113,7 +130,9 @@ Imported.HS_MenuJobBackground = true;
    var params = PluginManager.parameters("HS_MenuJobBackground");
    var flag = {};
    flag.Menu = toBoolean(params["MenuBackground"]);
+   flag.MenuOffset = toBoolean(params["MenuImageOffset"]);
    flag.Status = toBoolean(params["StatesBackground"]);
+   flag.StatusOffset = toBoolean(params["StatusImageOffset"]);
    flag.ClassCange = toBoolean(params["ClassCangeBackground"]);
    flag.ImageForeground = toBoolean(params["StatesJobImageForeground"]);
    flag.ImageZoom = toBoolean(params["UseImageZoom"]);
@@ -140,14 +159,23 @@ Imported.HS_MenuJobBackground = true;
       this._jobBackgroundSprite.y = 0;
       if (dataClass.meta.JobPic) {
          // 表示位置オフセット設定
-         if (dataClass.meta.jPicOffsetX) {
-            var offsetX = Number(dataClass.meta.jPicOffsetX);
+         if (flag.MenuOffset || flag.StatusOffset) {
+            var offsetX = 0;
+            if ((this.constructor === Scene_Menu) && flag.MenuOffset && dataClass.meta.jPicMenuOffsetX) {
+               offsetX = Number(dataClass.meta.jPicMenuOffsetX);
+            } else if ((this.constructor === Scene_Status) && flag.StatusOffset && dataClass.meta.jPicStatusOffsetX) {
+               offsetX = Number(dataClass.meta.jPicStatusOffsetX);
+            }
             if (!isNaN(offsetX)) {
                this._jobBackgroundSprite.x += offsetX;
             }
-         }
-         if (dataClass.meta.jPicOffsetY) {
-            var offsetY = Number(dataClass.meta.jPicOffsetY);
+
+            var offsetY = 0;
+            if ((this.constructor === Scene_Menu) && flag.MenuOffset && dataClass.meta.jPicMenuOffsetY) {
+               offsetY = Number(dataClass.meta.jPicMenuOffsetY);
+            } else if ((this.constructor === Scene_Status) && flag.StatusOffset && dataClass.meta.jPicStatusOffsetY) {
+               offsetY = Number(dataClass.meta.jPicStatusOffsetY);
+            }
             if (!isNaN(offsetY)) {
                this._jobBackgroundSprite.y += offsetY;
             }
