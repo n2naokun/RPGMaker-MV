@@ -6,7 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
-// 1.0.0 2021/06/24 初版
+// 1.0.0 2024/01/15 初版
 // ----------------------------------------------------------------------------
 // [Twitter]: https://twitter.com/n2naokun/
 // [GitHub] : https://github.com/n2naokun/
@@ -14,6 +14,10 @@
 
 /*:
  * @plugindesc テンプレート
+ * @target MV
+ * @url 
+ * @base 
+ * @orderAfter 
  * @author n2naokun(柊菜緒)
  *
  * @help 説明
