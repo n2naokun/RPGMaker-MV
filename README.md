@@ -1,6 +1,7 @@
 # RPGツクールMV向け公開プラグイン
 
-RPGツクールMV向けのプラグインを公開しています。
+RPGツクールMV向けのプラグインを公開しています。  
+一部MZ対応しているものもあります。
 
 ## 利用規約 Terms of use
 私が作成したプラグインについては全て[MITライセンス](https://github.com/n2naokun/RPGMaker-MV/blob/master/LICENSE.txt)です。  
