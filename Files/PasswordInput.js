@@ -6,6 +6,7 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
+// 1.1.0 2025/11/30 MV対応
 // 1.0.5 2017/11/03 英数字を処理するときに半角を使用するように修正
 // 1.0.4 2017/10/28 競合が発生する可能性のあるバグを修正
 // 1.0.3 2017/10/19 バグ修正
@@ -20,6 +21,7 @@
 /*:
  * @plugindesc 名前入力画面を流用したパスワード入力画面表示プラグインです。
  * @author n2naokun(柊菜緒)
+ * @target MV MZ
  *
  * @help プラグインコマンドからパスワード入力画面を表示して入力されたパスワードが
  * プラグインコマンドで設定されたパスワードと同じかをチェックして結果をスイッチに返します。
@@ -38,149 +40,230 @@
  *  作者に無断で改変、再配布が可能で、利用形態（商用、18禁利用等）
  *  についても制限はありません。
  *  このプラグインはもうあなたのものです。
+ * 
+ * @command PasswordInput
+ * @text パスワード入力
+ * @desc パスワード入力画面を表示します。
+ * 
+ * @arg Password
+ * @text パスワード
+ * @desc パスワード文字列
+ * 
+ * @arg SwitchId
+ * @text スイッチ
+ * @desc 解除フラグを返すスイッチの番号
+ * @type switch
+ * @default 0
+ * 
+ * @arg PWLength
+ * @text 最大文字数
+ * @desc 入力可能な最大文字数
+ * @type number
+ * @default 6
+ * 
  */
 
 "use strict";//厳格なエラーチェック
 
+var Imported = Imported || {};
+Imported.PasswordInput = true;
+// 他のプラグインとの連携用シンボル
+
 (function (_global) {
+   const PLUGIN_NAME = "PasswordInput";
+   const parameters = PluginManager.parameters(PLUGIN_NAME);
+
+   function isMV() {
+      return Utils.RPGMAKER_NAME !== 'MZ';
+   }
+
    //プラグインコマンド定義
-   var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
-   Game_Interpreter.prototype.pluginCommand = function (command, args) {
-      switch (command) {
-         case "PasswordInput":
-            if (args[0] && !isNaN(args[1])) {
-               var maxLength = args[0].length;
-               if (!isNaN(args[2]) && maxLength < Number(args[2])) {
-                  maxLength = Number(args[2]);
+   if (isMV()) {
+      var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
+      Game_Interpreter.prototype.pluginCommand = function (command, args) {
+         switch (command) {
+            case "PasswordInput":
+               if (args[0] && !isNaN(args[1])) {
+                  var maxLength = args[0].length;
+                  if (!isNaN(args[2]) && maxLength < Number(args[2])) {
+                     maxLength = Number(args[2]);
+                  }
+                  SceneManager.push(Scene_Password);
+                  SceneManager.prepareNextScene(maxLength, args[0], Number(args[1]));
                }
-               SceneManager.push(Scene_Password);
-               SceneManager.prepareNextScene(maxLength, args[0], Number(args[1]));
-            }
-      }
-      Game_Interpreter_pluginCommand.call(this, command, args);
+         }
+         Game_Interpreter_pluginCommand.call(this, command, args);
+      };
+   } else {
+      PluginManager.registerCommand(PLUGIN_NAME, "PasswordInput", args => {
+         if (args['Password'] && !isNaN(args['SwitchId'])) {
+            const password = args['Password'];
+            const switchId = Number(args['SwitchId']);
+            const maxLength = args['PWLength'] ?
+               Number(args['PWLength']) >= password.length ?
+                  Number(args['PWLength'])
+                  : password.length
+               : password.length;
+            SceneManager.push(Scene_Password);
+            SceneManager.prepareNextScene(maxLength, password, switchId);
+         }
+      });
+   }
+
+   //Scene_nameの継承と処理変更
+   function Scene_Password() {
+      this.initialize.apply(this, arguments);
+   }
+
+   Scene_Password.prototype = Object.create(Scene_Name.prototype);
+
+   Scene_Password.prototype.constructor = Scene_Password;
+   Scene_Password.prototype.initialize = function () {
+      Scene_MenuBase.prototype.initialize.call(this);
    };
 
+   Scene_Password.prototype.prepare = function (maxLength, passWord, switchId) {
+      this._maxLength = maxLength;
+      this._passWord = passWord;
+      this._switchId = switchId;
+   };
+
+   Scene_Password.prototype.create = function () {
+      Scene_MenuBase.prototype.create.call(this);
+      this.createEditWindow();
+      this.createInputWindow();
+   };
+
+   Scene_Password.prototype.createEditWindow = function () {
+      if (isMV()) {
+         this._editWindow = new Window_PasswordEdit(this._maxLength);
+      } else {
+         const rect = this.editWindowRect();
+         this._editWindow = new Window_PasswordEdit(rect, this._maxLength);
+      }
+      this.addWindow(this._editWindow);
+   };
+
+   Scene_Password.prototype.createInputWindow = function () {
+      if (isMV()) {
+         this._inputWindow = new Window_PasswordInput(this._editWindow);
+      } else {
+         const rect = this.inputWindowRect();
+         this._inputWindow = new Window_PasswordInput(rect);
+         this._inputWindow.setEditWindow(this._editWindow);
+      }
+      this._inputWindow.setHandler("ok", this.onInputOk.bind(this));
+      this.addWindow(this._inputWindow);
+   };
+
+   Scene_Password.prototype.onInputOk = function () {
+      $gameSwitches.setValue(this._switchId, this._editWindow.name() == this._passWord);
+      delete this._actor;
+      this.popScene();
+   };
+
+
+   //Window_NameEditの継承と処理変更
+   function Window_PasswordEdit() {
+      this.initialize.apply(this, arguments);
+   }
+
+   Window_PasswordEdit.prototype = Object.create(Window_NameEdit.prototype);
+   Window_PasswordEdit.prototype.constructor = Window_PasswordEdit;
+
+   if (isMV()) {
+      Window_PasswordEdit.prototype.initialize = function (maxLength) {
+         var width = this.windowWidth();
+         var height = this.windowHeight();
+         var x = (Graphics.boxWidth - width) / 2;
+         var y = (Graphics.boxHeight - (height + this.fittingHeight(9) + 8)) / 2;
+         Window_Base.prototype.initialize.call(this, x, y, width, height);
+         this._name = "";
+         this._index = this._name.length;
+         this._maxLength = maxLength;
+         this._defaultName = this._name;
+         this.deactivate();
+         this.refresh();
+      };
+   } else {
+      Window_PasswordEdit.prototype.initialize = function (rect, maxLength) {
+         Window_StatusBase.prototype.initialize.call(this, rect);
+         this._actor = null;
+         this._maxLength = maxLength;
+         this._name = "";
+         this._index = this._name.length;
+         this._defaultName = this._name;
+         this.deactivate();
+         this.refresh();
+      };
+   }
+
+   Window_PasswordEdit.prototype.refresh = function () {
+      this.contents.clear();
+      for (var i = 0; i < this._maxLength; i++) {
+         this.drawUnderline(i);
+      }
+      for (var j = 0; j < this._name.length; j++) {
+         this.drawChar(j);
+      }
+      var rect = this.itemRect(this._index);
+      this.setCursorRect(rect.x, rect.y, rect.width, rect.height);
+   };
+
+   Window_PasswordEdit.prototype.left = function () {
+      var nameCenter = this.contentsWidth() / 2;
+      var nameWidth = this._maxLength * this.charWidth();
+      return Math.min(nameCenter - nameWidth / 2, this.contentsWidth() - nameWidth);
+   };
+
+
+   //Window_NameInputの継承と処理変更
+   function Window_PasswordInput() {
+      this.initialize.apply(this, arguments);
+   }
+   Window_PasswordInput.prototype = Object.create(Window_NameInput.prototype);
+   Window_PasswordInput.prototype.constructor = Window_PasswordInput;
+
+   Window_PasswordInput.prototype.onNameOk = function () {
+      SoundManager.playOk();
+      this.callOkHandler();
+   };
+
+   Window_PasswordInput.prototype.table = function () {
+      if ($gameSystem.isJapanese()) {
+         return [Window_NameInput.JAPAN1,
+         Window_NameInput.JAPAN2,
+         Window_PasswordInput.JAPAN3];
+      } else if ($gameSystem.isRussian()) {
+         return [Window_PasswordInput.RUSSIA,
+         Window_NameInput.LATIN1,
+         Window_NameInput.LATIN2];
+      } else {
+         return [Window_NameInput.LATIN1,
+         Window_NameInput.LATIN2];
+      }
+   };
+
+   Window_PasswordInput.RUSSIA =
+      ["А", "Б", "В", "Г", "Д", "а", "б", "в", "г", "д",
+         "Е", "Ё", "Ж", "З", "И", "е", "ё", "ж", "з", "и",
+         "Й", "К", "Л", "М", "Н", "й", "к", "л", "м", "н",
+         "О", "П", "Р", "С", "Т", "о", "п", "р", "с", "т",
+         "У", "Ф", "Х", "Ц", "Ч", "у", "ф", "х", "ц", "ч",
+         "Ш", "Щ", "Ъ", "Ы", "Ь", "ш", "щ", "ъ", "ы", "ь",
+         "Э", "Ю", "Я", "^", "_", "э", "ю", "я", "%", "&",
+         "0", "1", "2", "3", "4", "(", ")", "*", "+", "-",
+         "5", "6", "7", "8", "9", ":", ";", " ", "Page", "OK"];
+
+   Window_PasswordInput.JAPAN3 =
+      ['A', 'B', 'C', 'D', 'E', 'a', 'b', 'c', 'd', 'e',
+         'F', 'G', 'H', 'I', 'J', 'f', 'g', 'h', 'i', 'j',
+         'K', 'L', 'M', 'N', 'O', 'k', 'l', 'm', 'n', 'o',
+         'P', 'Q', 'R', 'S', 'T', 'p', 'q', 'r', 's', 't',
+         'U', 'V', 'W', 'X', 'Y', 'u', 'v', 'w', 'x', 'y',
+         'Z', '[', ']', '^', '_', 'z', '{', '}', '|', '~',
+         '0', '1', '2', '3', '4', '!', '#', '$', '%', '&',
+         '5', '6', '7', '8', '9', '(', ')', '*', '+', '-',
+         '/', '=', '@', '<', '>', ':', ';', ' ', 'かな', '決定'];
+
 })(this);
-
-//Scene_nameの継承と処理変更
-function Scene_Password() {
-   this.initialize.apply(this, arguments);
-}
-
-Scene_Password.prototype = Object.create(Scene_Name.prototype);
-
-Scene_Password.prototype.constructor = Scene_Password;
-Scene_Password.prototype.initialize = function () {
-   Scene_MenuBase.prototype.initialize.call(this);
-};
-
-Scene_Password.prototype.prepare = function (maxLength, passWord, switchId) {
-   this._maxLength = maxLength;
-   this._passWord = passWord;
-   this._switchId = switchId;
-};
-
-Scene_Password.prototype.create = function () {
-   Scene_MenuBase.prototype.create.call(this);
-   this.createEditWindow();
-   this.createInputWindow();
-};
-
-Scene_Password.prototype.createEditWindow = function () {
-   this._editWindow = new Window_PasswordEdit(this._maxLength);
-   this.addWindow(this._editWindow);
-};
-
-Scene_Password.prototype.createInputWindow = function () {
-   this._inputWindow = new Window_PasswordInput(this._editWindow);
-   this._inputWindow.setHandler("ok", this.onInputOk.bind(this));
-   this.addWindow(this._inputWindow);
-};
-
-Scene_Password.prototype.onInputOk = function () {
-   if (this._editWindow.name() == this._passWord) {
-      $gameSwitches.setValue(this._switchId, true);
-   } else {
-      $gameSwitches.setValue(this._switchId, false);
-   }
-   delete this._actor;
-   this.popScene();
-};
-
-
-//Window_NameEditの継承と処理変更
-function Window_PasswordEdit() {
-   this.initialize.apply(this, arguments);
-}
-
-Window_PasswordEdit.prototype = Object.create(Window_NameEdit.prototype);
-Window_PasswordEdit.prototype.constructor = Window_PasswordEdit;
-
-Window_PasswordEdit.prototype.initialize = function (maxLength) {
-   var width = this.windowWidth();
-   var height = this.windowHeight();
-   var x = (Graphics.boxWidth - width) / 2;
-   var y = (Graphics.boxHeight - (height + this.fittingHeight(9) + 8)) / 2;
-   Window_Base.prototype.initialize.call(this, x, y, width, height);
-   this._name = "";
-   this._index = this._name.length;
-   this._maxLength = maxLength;
-   this._defaultName = this._name;
-   this.deactivate();
-   this.refresh();
-};
-
-Window_PasswordEdit.prototype.refresh = function () {
-   this.contents.clear();
-   for (var i = 0; i < this._maxLength; i++) {
-      this.drawUnderline(i);
-   }
-   for (var j = 0; j < this._name.length; j++) {
-      this.drawChar(j);
-   }
-   var rect = this.itemRect(this._index);
-   this.setCursorRect(rect.x, rect.y, rect.width, rect.height);
-};
-
-Window_PasswordEdit.prototype.left = function () {
-   var nameCenter = this.contentsWidth() / 2;
-   var nameWidth = this._maxLength * this.charWidth();
-   return Math.min(nameCenter - nameWidth / 2, this.contentsWidth() - nameWidth);
-};
-
-
-//Window_NameInputの継承と処理変更
-function Window_PasswordInput() {
-   this.initialize.apply(this, arguments);
-}
-Window_PasswordInput.prototype = Object.create(Window_NameInput.prototype);
-Window_PasswordInput.prototype.constructor = Window_PasswordInput;
-
-Window_PasswordInput.prototype.onNameOk = function () {
-   SoundManager.playOk();
-   this.callOkHandler();
-};
-
-Window_PasswordInput.prototype.table = function () {
-   if ($gameSystem.isJapanese()) {
-      return [Window_NameInput.JAPAN1,
-      Window_NameInput.JAPAN2,
-      Window_PasswordInput.JAPAN3];
-   } else if ($gameSystem.isRussian()) {
-      return [Window_NameInput.RUSSIA];
-   } else {
-      return [Window_NameInput.LATIN1,
-      Window_NameInput.LATIN2];
-   }
-};
-
-Window_PasswordInput.JAPAN3 =
-   ['A', 'B', 'C', 'D', 'E', 'a', 'b', 'c', 'd', 'e',
-      'F', 'G', 'H', 'I', 'J', 'f', 'g', 'h', 'i', 'j',
-      'K', 'L', 'M', 'N', 'O', 'k', 'l', 'm', 'n', 'o',
-      'P', 'Q', 'R', 'S', 'T', 'p', 'q', 'r', 's', 't',
-      'U', 'V', 'W', 'X', 'Y', 'u', 'v', 'w', 'x', 'y',
-      'Z', '[', ']', '^', '_', 'z', '{', '}', '|', '~',
-      '0', '1', '2', '3', '4', '!', '#', '$', '%', '&',
-      '5', '6', '7', '8', '9', '(', ')', '*', '+', '-',
-      '/', '=', '@', '<', '>', ':', ';', ' ', 'かな', '決定'];
